@@ -1,0 +1,92 @@
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from datetime import datetime
+
+# Inicializa o db, que será importado no app.py
+db = SQLAlchemy()
+
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'usuarios'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.TIMESTAMP, server_default=db.func.now())
+
+    def __repr__(self):
+        return f'<Usuario {self.username}>'
+    
+
+class DesempenhoAtendente(db.Model):
+    __tablename__ = 'desempenho_atendente'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(255))
+    chamadas_atendidas = db.Column(db.Integer)
+    data = db.Column(db.Date)
+    tempo_online = db.Column(db.Integer)
+    tempo_servico = db.Column(db.Integer)
+    tempo_totalatend = db.Column(db.Integer)
+    data_importacao = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Fila(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    numero = db.Column(db.Integer)
+    nome = db.Column(db.String(50))
+    tipo = db.Column(db.String(10))  # <-- ADICIONE ESTA LINHA
+    chamadas_completadas = db.Column(db.Integer)
+    chamadas_abandonadas = db.Column(db.Integer)
+    transbordo = db.Column(db.Integer)
+    chamadas_recebidas = db.Column(db.Integer)
+    tempo_espera = db.Column(db.Integer)
+    tempo_fala = db.Column(db.Integer)
+    nivel_servico = db.Column(db.Float)
+    data = db.Column(db.DateTime)
+
+
+class FilaVyrtus(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    numero = db.Column(db.Integer)
+    nome = db.Column(db.String(50))
+    tipo = db.Column(db.String(10))  # <-- ADICIONE ESTA LINHA
+    chamadas_completadas = db.Column(db.Integer)
+    chamadas_abandonadas = db.Column(db.Integer)
+    transbordo = db.Column(db.Integer)
+    chamadas_recebidas = db.Column(db.Integer)
+    tempo_espera = db.Column(db.Integer)
+    tempo_fala = db.Column(db.Integer)
+    nivel_servico = db.Column(db.Float)
+    data = db.Column(db.DateTime)
+
+
+
+class Chamado(db.Model):
+    __tablename__ = 'chamados'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    chave = db.Column(db.Integer, nullable=False)
+    cod_chamado = db.Column(db.String(20), nullable=False)
+    data_criacao = db.Column(db.Date, nullable=False)
+    data_finalizacao = db.Column(db.Date)
+    nome_status = db.Column(db.String(50))
+    assunto = db.Column(db.Text)
+    solicitante = db.Column(db.String(100))
+    operador = db.Column(db.String(100))
+    cod_grupo = db.Column(db.String(10))
+    nome_grupo = db.Column(db.String(100))
+    cod_solicitacao = db.Column(db.String(10))
+    cod_prioridade_atual = db.Column(db.String(10))
+    mes_referencia = db.Column(db.String(7), nullable=False)
+    data_importacao = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    # Índice composto para garantir unicidade
+    __table_args__ = (
+        db.UniqueConstraint('chave', 'mes_referencia', name='uq_chave_mes'),
+    )
+
+    def __repr__(self):
+        return f'<Chamado {self.cod_chamado}>'
