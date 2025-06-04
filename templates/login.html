@@ -1,0 +1,26 @@
+ <br><br><br><br><br><br>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_login.css')}}">
+
+
+<h1>Login</h1>
+    
+    <div class="message-flash">
+    <!-- Exibindo mensagens flash -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    </div>
+    <div class="Login">
+       <form method="POST" action="{{ url_for('login.login') }}">
+            <input type="text" name="username" id="username" placeholder="Username" required>
+            <input type="password" name="password" id="password" placeholder="Password" required>
+            <button type="submit" class="btn-btn-primary">Enviar</button>
+        </form><br>
+    </div><br><br><br><br><br>

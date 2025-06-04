@@ -1,0 +1,497 @@
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    
+
+
+<!-- Atualização dinâmica dos chamados em aberto -->
+    <script>
+     /*   document.addEventListener("DOMContentLoaded", function () {
+            fetch('/dashboard/ChamadosSuporte', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("chamados-abertos").textContent = "Abertos: " + data.total_chamados;
+                } else {
+                    document.getElementById("chamados-abertos").textContent = "Erro ao carregar";
+                }
+            })
+            .catch(error => {
+                document.getElementById("chamados-abertos").textContent = "Erro de conexão";
+            });
+        });*/
+    </script>
+
+<!-- Bloco que traz as informações dos chamados finalizados -->
+    <script>
+    /*    document.addEventListener("DOMContentLoaded", function () {
+            fetch('/dashboard/ChamadosSuporte/finalizado', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("chamados-finalizados").textContent = "Finalizados: " + data.total_chamados;
+                } else {
+                    document.getElementById("chamados-finalizados").textContent = "Erro ao carregar";
+                }
+            })
+            .catch(error => {
+                document.getElementById("chamados-finalizados").textContent = "Erro de conexão";
+            });
+        });*/
+    </script>
+
+<!-- Bloco que traz as informações das filas -->
+     <script>
+       /* document.addEventListener("DOMContentLoaded", function () {
+            fetch('/dashboard/ChamadosSuporte/fila', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("chamados-fila").textContent = "Fila: " + data.total_chamados;
+                } else {
+                    document.getElementById("chamados-fila").textContent = "Erro ao carregar";
+                }
+            })
+            .catch(error => {
+                document.getElementById("chamados-fila").textContent = "Erro de conexão";
+            });
+        });*/
+    </script>
+
+<!-- Scripts para carregar os dados charts SLAs e Abertos VS Fechados-->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Chamados Abertos
+            fetch('/dashboard/ChamadosSuporte', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("chamados-abertos").textContent = "Abertos: " + data.total_chamados;
+                    }
+                });
+
+            // Chamados Finalizados
+            fetch('/dashboard/ChamadosSuporte/finalizado', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("chamados-finalizados").textContent = "Finalizados: " + data.total_chamados;
+                    }
+                });
+
+            // Chamados do Mês Atual
+            fetch('/dashboard/ChamadosSuporte/contagem_mes_atual', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("total-chamados-mes").textContent = data.total_mes_atual;
+                } else {
+                    console.error("Erro ao carregar a contagem:", data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Erro de conexão:", error);
+            });
+
+            //document.getElementById('btnSaveChartAF').addEventListener('click', function () {
+            //    const link = document.createElement('a');
+            //    const canvas = document.getElementById('statusChart');
+            //    link.href = canvas.toDataURL('image/png');
+            //    link.download = 'grafico-abertos-vs-finalizados.png';
+            //    link.click();
+            //});
+
+            // Botão: imprimir gráfico
+          //  document.getElementById('btnPrintChartAF').addEventListener('click', function () {
+               // const canvas = document.getElementById('statusChart');
+                //const win = window.open('', '_blank');
+                //win.document.write('<html><head><title>Imprimir Gráfico</title></head><body>');
+                //win.document.write('<img src="' + canvas.toDataURL('image/png') + '" style="width:100%;">');
+                //win.document.write('</body></html>');
+                //win.document.close();
+                //win.focus();
+                //win.print();
+            //});
+
+
+             fetch('/dashboard/ChamadosSuporte/sla_andamento', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const dentroPrazo = data.sla1_nao_expirado;
+                        const expirado = data.sla1_expirado;
+                        const total = dentroPrazo + expirado;
+
+                        const porcentagens = [
+                            ((dentroPrazo / total) * 100).toFixed(1),
+                            ((expirado / total) * 100).toFixed(1)
+                        ];
+
+                        const slaCtx = document.getElementById('slaChart').getContext('2d');
+
+                        new Chart(slaCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Dentro do Prazo', 'Expirado'],
+                                datasets: [{
+                                    label: 'SLA1 - Primeiro Atendimento',
+                                    data: [dentroPrazo, expirado],
+                                    backgroundColor: ['#007bffcc', '#dc3545cc'],
+                                    borderRadius: 6,
+                                    barThickness: 30
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { position: 'bottom' },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                const value = context.raw;
+                                                const percentage = ((value / total) * 100).toFixed(1);
+                                                return `${value} (${percentage}%)`;
+                                            }
+                                        }
+                                    },
+                                    datalabels: {
+                                        color: '#000',
+                                        anchor: 'center',
+                                        align: 'top',
+                                        formatter: function(value, context) {
+                                            return `${porcentagens[context.dataIndex]}%`;
+                                        },
+                                        font: {
+                                            weight: 'bold'
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: { precision: 0 }
+                                    },
+                                    x: {
+                                        grid: { display: false }
+                                    }
+                                }
+                            },
+                            plugins: [ChartDataLabels]
+                        });
+
+                    } else {
+                        console.error("Erro nos dados:", data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar dados de SLA:", error);
+                });
+
+            // Botão: salvar imagem
+            /*document.getElementById('btnSaveChart').addEventListener('click', function () {
+                const link = document.createElement('a');
+                link.href = document.getElementById('slaChart').toDataURL('image/png');
+                link.download = 'grafico-sla.png';
+                link.click();
+            });*/
+
+            // Botão: imprimir gráfico
+           /* document.getElementById('btnPrintChart').addEventListener('click', function () {
+                const canvas = document.getElementById('slaChart');
+                const win = window.open('', '_blank');
+                win.document.write('<html><head><title>Imprimir Gráfico</title></head><body>');
+                win.document.write('<img src="' + canvas.toDataURL('image/png') + '" style="width:100%;">');
+                win.document.write('</body></html>');
+                win.document.close();
+                win.focus();
+                win.print();
+            });*/
+
+            fetch('/dashboard/ChamadosSuporte/sla_andamento', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const dentroPrazo = data.sla2_nao_expirado;
+                        const expirado = data.sla2_expirado;
+                        const total = dentroPrazo + expirado;
+
+                        const porcentagens = [
+                            ((dentroPrazo / total) * 100).toFixed(1),
+                            ((expirado / total) * 100).toFixed(1)
+                        ];
+
+                        const slaCtx = document.getElementById('slaChart2').getContext('2d');
+                        new Chart(slaCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Dentro do Prazo', 'Expirado'],
+                                datasets: [
+                                    {
+                                        label: 'SLA2 - Resolução',
+                                        data: [data.sla2_nao_expirado, data.sla2_expirado],
+                                        backgroundColor: ['#007bffcc', '#dc3545cc'],
+                                        borderRadius: 6,
+                                        barThickness: 30
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { position: 'bottom' },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                const value = context.raw;
+                                                const percentage = ((value / total) * 100).toFixed(1);
+                                                return `${value} (${percentage}%)`;
+                                            }
+                                        }
+                                    },
+                                    datalabels: {
+                                        color: '#000',
+                                        anchor: 'center',
+                                        align: 'end',
+                                        formatter: function(value, context) {
+                                            return `${porcentagens[context.dataIndex]}%`;
+                                        },
+                                        font: {
+                                            weight: 'bold'
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: { precision: 0 }
+                                    },
+                                    x: {
+                                        grid: { display: false }
+                                    }
+                                }
+                            },
+                            plugins: [ChartDataLabels]
+                        });
+
+                    } else {
+                        console.error("Erro nos dados:", data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar dados de SLA:", error);
+                });
+
+            // Botão: salvar imagem
+            /*document.getElementById('btnSaveChart2').addEventListener('click', function () {
+                const link = document.createElement('a');
+                link.href = document.getElementById('slaChart2').toDataURL('image/png');
+                link.download = 'grafico-sla.png';
+                link.click();
+            });*/
+
+            // Botão: imprimir gráfico
+            /*document.getElementById('btnPrintChart2').addEventListener('click', function () {
+                const canvas = document.getElementById('slaChart2');
+                const win = window.open('', '_blank');
+                win.document.write('<html><head><title>Imprimir Gráfico</title></head><body>');
+                win.document.write('<img src="' + canvas.toDataURL('image/png') + '" style="width:100%;">');
+                win.document.write('</body></html>');
+                win.document.close();
+                win.focus();
+                win.print();
+            });*/
+        });       
+    </script>
+
+<!-- Bloco que traz as informações dos grupos -->
+    <script>
+       fetch('/dashboard/ChamadosSuporte/por_grupo_mes_atual')
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            const ctx = document.getElementById('GrupoAtendimentoChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.data.labels,
+                    datasets: [{
+                        label: "Chamados por Grupo",
+                        data: data.data.datasets[0].data,
+                        backgroundColor: data.data.datasets[0].backgroundColor
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Chamados por Grupo - ${data.mes_referencia}`
+                        },
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: {
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        const dataset = data.datasets[0];
+                                        const total = dataset.data.reduce((a, b) => a + b, 0);
+
+                                        return data.labels.map((label, i) => {
+                                            const value = dataset.data[i];
+                                            const percentage = total ? ((value / total) * 100).toFixed(1) : 0;
+                                            return {
+                                                text: `${label}: ${value} (${percentage}%)`,
+                                                fillStyle: dataset.backgroundColor[i],
+                                                strokeStyle: dataset.borderColor ? dataset.borderColor[i] : '',
+                                                lineWidth: 0,
+                                                hidden: isNaN(dataset.data[i]) || dataset.data[i] === null,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.chart._metasets[context.datasetIndex].total;
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    responsive: true
+                }
+            });
+        } else {
+            console.error("Erro ao carregar dados:", data.message);
+        }
+    })
+    .catch(err => console.error("Erro de conexão:", err));
+
+
+
+    </script>
+
+<!-- Bloco que traz as informações das Operadores -->
+    <script>
+        fetch('/dashboard/ChamadosSuporte/por_operador_mes_atual', {
+        method: 'POST'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    const ctx = document.getElementById('OperadorAtendimentoChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.data.labels,
+                            datasets: [{
+                                label: "Chamados por Operador",
+                                data: data.data.datasets[0].data,
+                                backgroundColor: data.data.datasets[0].backgroundColor,
+                                barThickness: 20  // ← AQUI você controla a espessura
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: `Chamados por Operador - ${data.mes_referencia}`
+                                },
+                                legend: { display: false }
+                            },
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        autoSkip: false,
+                                        maxRotation: 45,
+                                        minRotation: 0
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.error("Erro ao carregar dados:", data.message);
+                }
+            })
+            .catch(err => console.error("Erro de conexão:", err));
+
+    </script>
+
+
+<!-- Bloco que traz as informações das Solicitações -->
+    <script>
+        fetch('/dashboard/ChamadosSuporte/por_tipo_solicitacao_mes_atual', {
+            method: 'POST'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const ctx = document.getElementById('TicketsCanalChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: data.data.labels,
+                                datasets: [{
+                                    label: 'Chamados por Canal',
+                                    data: data.data.datasets[0].data,
+                                    backgroundColor: data.data.datasets[0].backgroundColor,
+                                    maxBarThickness: 10
+                                }]
+                            },
+                            options: {
+                                indexAxis: 'y', // Barras horizontais
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: `Chamados por Canal - ${data.mes_referencia}`
+                                    },
+                                    legend: { display: false }
+                                },
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        beginAtZero: true,
+                                        ticks: { precision: 0 }
+                                    },
+                                    y: {
+                                        ticks: {
+                                            autoSkip: false,
+                                            maxRotation: 0,
+                                            minRotation: 0
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        console.error("Erro ao carregar dados:", data.message);
+                    }
+                })
+                .catch(err => console.error("Erro de conexão:", err));
+
+    </script>
+
