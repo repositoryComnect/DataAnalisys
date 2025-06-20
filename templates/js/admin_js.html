@@ -1,0 +1,449 @@
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    
+
+<!-- Atualização dinâmica dos chamados em aberto -->
+   <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/admin/ChamadosSuporte', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("chamados-abertos").textContent = "Abertos: " + data.total_chamados;
+                } else {
+                    document.getElementById("chamados-abertos").textContent = "Erro ao carregar";
+                }
+            })
+            .catch(error => {
+                document.getElementById("chamados-abertos").textContent = "Erro de conexão";
+            });
+        });
+    </script>
+
+<!-- Bloco que traz as informações dos chamados finalizados -->
+   <!-- <script>
+       document.addEventListener("DOMContentLoaded", function () {
+            fetch('/admin/ChamadosSuporte/finalizado', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("chamados-finalizados").textContent = "Finalizados: " + data.total_chamados;
+                } else {
+                    document.getElementById("chamados-finalizados").textContent = "Erro ao carregar";
+                }
+            })
+            .catch(error => {
+                document.getElementById("chamados-finalizados").textContent = "Erro de conexão";
+            });
+        });
+    </script>-->
+
+<!-- Bloco que traz as informações das filas -->
+     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/dashboard/ChamadosSuporte/fila', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("chamados-fila").textContent = "Fila: " + data.total_chamados;
+                } else {
+                    document.getElementById("chamados-fila").textContent = "Erro ao carregar";
+                }
+            })
+            .catch(error => {
+                document.getElementById("chamados-fila").textContent = "Erro de conexão";
+            });
+        });
+    </script>
+
+    <!--<script>
+        document.addEventListener('DOMContentLoaded', function () {
+        fetch('/admin/abertos_vs_admin_resolvido_mes', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    const ctx = document.getElementById('LinhaAbertosResolvidosAdminChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,
+                            datasets: data.datasets
+                        },
+                        options: {
+                            responsive: true,
+                            interaction: {
+                                mode: 'index',
+                                intersect: false,
+                            },
+                            stacked: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    color: '#fff'
+                                },
+                                legend: {
+                                    labels: {
+                                        color: '#fff'
+                                    }
+                                },
+                                tooltip: {
+                                    titleColor: '#fff',
+                                    bodyColor: '#fff',
+                                    backgroundColor: 'rgba(0,0,0,0.7)'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { 
+                                        precision: 0,
+                                        color: '#fff'
+                                    },
+                                    grid: {
+                                        color: 'rgba(255,255,255,0.1)'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: '#fff'
+                                    },
+                                    grid: {
+                                        color: 'rgba(255,255,255,0.1)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.error("Erro ao carregar dados:", data.message);
+                }
+            })
+            .catch(error => console.error("Erro de conexão:", error));
+    });
+
+    </script>-->
+
+   
+
+<!-- Bloco que traz as informações das Solicitações -->
+   <!-- <script>
+    fetch('/dashboard/ChamadosSuporte/admin_por_tipo_solicitacao_mes_atual', {
+        method: 'POST'
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            const ctx = document.getElementById('').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.data.labels,
+                    datasets: [{
+                        label: 'Chamados por Canal',
+                        data: data.data.datasets[0].data,
+                        backgroundColor: data.data.datasets[0].backgroundColor,
+                        maxBarThickness: 10
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Barras horizontais
+                    plugins: {
+                        title: {
+                            display: true,
+                            color: '#fff'  // título branco
+                        },
+                        legend: { 
+                            display: false,
+                            labels: {
+                                color: '#fff'  // legenda em branco (se usar)
+                            }
+                        }
+                    },
+                    responsive: true,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { 
+                                precision: 0,
+                                color: '#fff'  // texto eixo X branco
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 0,
+                                minRotation: 0,
+                                color: '#fff'  // texto eixo Y branco
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error("Erro ao carregar dados:", data.message);
+        }
+    })
+    .catch(err => console.error("Erro de conexão:", err));
+    </script>-->
+
+<!-- Bloco que recarrega a página a cada 5 minutos-->
+    <!--<script>
+        // Recarrega a página a cada 5 minutos (300000 milissegundos)
+        setTimeout(function () {
+            location.reload();
+        }, 300000);
+    </script>-->
+
+
+   <!--Bloco que traz os botões de cada operador-->
+<!-- Bloco que traz os botões de cada operador -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    async function carregarOperadores() {
+        try {
+            const response = await fetch('/admin/get/operadores');
+            const data = await response.json();
+
+            if (data.status === "success") {
+                const container = document.getElementById('botoes-operadores');
+
+                const operadoresOrdenados = data.operadores.sort((a, b) => a.localeCompare(b));
+
+                operadoresOrdenados.forEach(operador => {
+                    const botao = document.createElement('button');
+                    botao.className = 'btn btn-outline-primary operador-btn d-flex align-items-center';
+
+                    const icone = document.createElement('i');
+                    icone.className = 'bi bi-pie-chart-fill me-2';
+
+                    const texto = document.createElement('span');
+                    texto.textContent = operador;
+
+                    botao.appendChild(icone);
+                    botao.appendChild(texto);
+                    botao.dataset.operador = operador;
+
+                    botao.onclick = function () {
+                        document.querySelectorAll('.operador-btn').forEach(btn => btn.classList.remove('active'));
+                        this.classList.add('active');
+                        filtrarPorOperador(operador);
+                    };
+
+                    container.appendChild(botao);
+                });
+
+                if (container.firstChild) {
+                    container.firstChild.classList.add('active');
+                }
+            }
+
+        } catch (error) {
+            console.error('Erro ao carregar operadores:', error);
+        }
+    }
+
+    function filtrarPorOperador(operador) {
+        console.log('Enviando operador para o backend:', operador);
+
+        fetch('/operadores/performanceColaboradores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome: operador })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            } else {
+                console.warn('Nenhuma URL de redirecionamento recebida.');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao enviar operador para o backend:', error);
+        });
+    }
+
+    carregarOperadores();
+});
+</script>
+
+
+
+
+<script>
+    // Variáveis globais
+    let statusAdminChart = null;
+
+    // Cores fixas para status específicos
+    const coresStatusFixas = {
+            "Aguardando Atendimento": "#FFD700",
+            "Aguardando Cliente": "#20B2AA",
+            "Andamento": "#77DD77",
+            "Transferência": "#BDB76B",
+            "Aguardando Terceiros": "#1E90FF",
+            "Aguardando Suporte Nível 2": "#FF4500",
+            "Aguardando Analise Nível 2": "#FF0000",
+            "Agendamento": "#6A5ACD",
+            "Aguardando Aprovação": "#BDB76B"
+        };
+
+    // Função para verificar se o elemento canvas existe
+    function verificarCanvas() {
+        const canvas = document.getElementById('statusAdminChart');
+        if (!canvas) {
+            console.error('Elemento canvas não encontrado! Verifique se existe um elemento com id="statusAdminChart"');
+            return false;
+        }
+        return true;
+    }
+
+    // Função para processar dados para o gráfico de barras
+    function processarDadosParaBarras(apiData) {
+        try {
+            const grupos = apiData.grupos;
+            const status = apiData.labels;
+            
+            const datasets = status.map((statusName, statusIndex) => {
+                return {
+                    label: statusName,
+                    data: grupos.map(grupo => {
+                        return apiData.chamados_abertos.filter(chamado => 
+                            chamado.nome_grupo === grupo && 
+                            chamado.nome_status === statusName
+                        ).length;
+                    }),
+                    backgroundColor: coresStatusFixas[statusName] || '#999999', // cor fixa ou cinza se não definido
+                    borderColor: '#2d2d2d',
+                    borderWidth: 1
+                };
+            });
+
+            return {
+                labels: grupos,
+                datasets: datasets
+            };
+        } catch (error) {
+            console.error('Erro ao processar dados:', error);
+            return null;
+        }
+    }
+
+    // Função para criar/atualizar o gráfico
+    function criarGrafico(processedData, totalChamados) {
+        try {
+            if (!verificarCanvas()) return;
+            
+            const ctx = document.getElementById('statusAdminChart').getContext('2d');
+            
+            if (statusAdminChart) {
+                statusAdminChart.destroy();
+            }
+
+            const config = {
+                type: 'bar',
+                data: processedData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: { color: '#fff' }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: { 
+                                color: '#fff',
+                                precision: 0
+                            },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#fff',
+                                font: { size: 12 },
+                                boxWidth: 12
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: `Total de Chamados Abertos: ${totalChamados}`,
+                            color: '#fff',
+                            font: { size: 16 }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff'
+                        }
+                    }
+                }
+            };
+
+            statusAdminChart = new Chart(ctx, config);
+            console.log('Gráfico criado com sucesso!');
+            
+        } catch (error) {
+            console.error('Erro ao criar gráfico:', error);
+        }
+    }
+
+    // Função principal para carregar dados
+    async function carregarDados() {
+        try {
+            console.log('Iniciando carregamento de dados...');
+            
+            if (!verificarCanvas()) return;
+            
+            const response = await fetch('/dashboard/ChamadosSuporte/estatisticas_mensais');
+            
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Dados recebidos:', data);
+
+            if (data.status === "success") {
+                const processedData = processarDadosParaBarras({
+                    ...data.data,
+                    chamados_abertos: data.chamados_abertos
+                });
+                if (processedData) {
+                    criarGrafico(processedData, data.data.total);
+                }
+            } else {
+                console.error('Erro na API:', data.message);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados:', error);
+        }
+    }
+
+    // Inicialização quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM carregado');
+        carregarDados();
+        
+        window.addEventListener('resize', function() {
+            if (statusAdminChart) {
+                statusAdminChart.update();
+            }
+        });
+    });
+</script>

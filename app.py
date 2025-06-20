@@ -1,12 +1,13 @@
 from flask import Flask, jsonify, request, redirect, Blueprint
 from modules.home.routes import home_bp
-#from modules.delgrande.auth.routes import auth_bp
 from modules.delgrande.filas.routes import filas_bp
 from modules.delgrande.relatorios.routes import relatorio_bp
 from modules.deskmanager.auth.routes import auth_desk_bp
 from modules.login.routes import login_bp
 from modules.deskmanager.dashboard.routes import dashboard_bp
 from modules.deskmanager.authenticate.routes import auth_bp
+from modules.admin.routes import admin_bp
+from modules.delgrande.operadores.routes import operadores_bp
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from application.models import db, User
@@ -23,6 +24,8 @@ app.register_blueprint(filas_bp)
 app.register_blueprint(relatorio_bp)
 app.register_blueprint(auth_desk_bp)
 app.register_blueprint(dashboard_bp)
+app.register_blueprint(admin_bp)
+app.register_blueprint(operadores_bp)
 #app.register_blueprint(auth_desk_manager_bp)
 
 

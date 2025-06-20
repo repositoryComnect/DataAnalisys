@@ -17,12 +17,41 @@
         }
         
         body {
-            background-color: #f5f7fa;
+            background-color: #1a1a24;
             color: #333;
             line-height: 1.6;
             margin-left: 40px;
             margin-right: 40px;
         }
+
+        .card-header {
+            font-size: 1.2rem;  /* aumenta o tamanho da fonte */
+            color: #fff !important;  /* deixa o texto branco, !important para garantir */
+            font-weight: 700;    /* negrito */
+        }
+
+        .card-header,
+        .card-header i {
+            color: #fff !important;
+        }
+
+
+
+        .card {
+            background-color: #484747cc !important; /* cinza escuro translúcido */
+            color: #fff; /* texto branco */
+            border: 1.5px solid #fff; /* borda branca sólida */
+            border-radius: 8px;
+            /* Sombra escura principal para profundidade */
+        }
+
+            .card-header,
+            .card-footer,
+            .badge,
+            #ultima-atualizacao,
+            #mes-referencia {
+                color: white !important;
+            }
         
         .container {
             max-width: 1200px;
@@ -30,22 +59,22 @@
             padding: 0 20px;
         }
         
-        /* Header */
-        header {
-            background: white;
-            color: #333; /* Cor do texto escura para contraste com fundo branco */
+                header {
+            background: #000000; /* Fundo preto */
+            color: #ffffff; /* Texto branco para contraste */
             padding: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra mais suave */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid #eee; /* Linha sutil na borda inferior */
+            border-bottom: 1px solid #333; /* Linha sutil na borda inferior */
         }
-        
+
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: #ffffff; /* Texto branco */
         }
         
         .logo {
@@ -70,7 +99,7 @@
         }
         
         .nav-links a {
-            color: #333; /* Texto escuro */
+            color: #fff5f5; /* Texto escuro */
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -411,3 +440,30 @@
                 margin-left: 0;
             }
         }
+
+
+        body.light-mode {
+        background-color: #f8f9fa;
+        color: #212529;
+    }
+
+    body.dark-mode {
+        background-color: #1d1e20;
+        color: #ffffff;
+    }
+
+    .card.light-mode {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-color: #ccc !important;
+    }
+
+    .card.dark-mode {
+        background-color: #484747cc !important;
+        color: #ffffff !important;
+        border-color: #ffffff !important;
+    }
+
+    .card-header, .card-footer {
+        transition: color 0.3s ease;
+    }

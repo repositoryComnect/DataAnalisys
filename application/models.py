@@ -32,6 +32,18 @@ class DesempenhoAtendente(db.Model):
     tempo_totalatend = db.Column(db.Integer)
     data_importacao = db.Column(db.DateTime, default=datetime.utcnow)
 
+class DesempenhoAtendenteVyrtos(db.Model):
+    __tablename__ = 'desempenho_atendente_vyrtos'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(255))
+    chamadas_atendidas = db.Column(db.Integer)
+    data = db.Column(db.Date)
+    tempo_online = db.Column(db.Integer)
+    tempo_servico = db.Column(db.Integer)
+    tempo_totalatend = db.Column(db.Integer)
+    data_importacao = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class Fila(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -66,24 +78,43 @@ class FilaVyrtus(db.Model):
 
 class Chamado(db.Model):
     __tablename__ = 'chamados'
-    
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     chave = db.Column(db.Integer, nullable=False)
     cod_chamado = db.Column(db.String(20), nullable=False)
-    data_criacao = db.Column(db.Date, nullable=False)
-    data_finalizacao = db.Column(db.Date)
+    nome_prioridade = db.Column(db.String(100))
+    data_criacao = db.Column(db.DateTime, nullable=False)
+    hora_criacao = db.Column(db.String(10))
+    data_finalizacao = db.Column(db.DateTime)
+    hora_finalizacao = db.Column(db.String(10))
+    data_alteracao = db.Column(db.Date)
+    hora_alteracao = db.Column(db.String(10))
     nome_status = db.Column(db.String(50))
     assunto = db.Column(db.Text)
-    solicitante = db.Column(db.String(100))
+    descricao = db.Column(db.Text)
+    chave_usuario = db.Column(db.String(50))
+    nome_usuario = db.Column(db.String(100))
+    sobrenome_usuario = db.Column(db.String(100))
+    nome_completo_solicitante = db.Column(db.String(200))
+    solicitante_email = db.Column(db.String(200))
     operador = db.Column(db.String(100))
+    sobrenome_operador = db.Column(db.String(100))
+    total_acoes = db.Column(db.Integer)
+    total_anexos = db.Column(db.Integer)
+    sla = db.Column(db.String(100))
     cod_grupo = db.Column(db.String(10))
     nome_grupo = db.Column(db.String(100))
     cod_solicitacao = db.Column(db.String(10))
+    cod_sub_categoria = db.Column(db.String(10))
+    cod_tipo_ocorrencia = db.Column(db.String(10))
+    cod_categoria_tipo = db.Column(db.String(10))
     cod_prioridade_atual = db.Column(db.String(10))
+    cod_status_atual = db.Column(db.String(10))
     mes_referencia = db.Column(db.String(7), nullable=False)
     data_importacao = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    tipo_vinculo = db.Column(db.String(10))  # Valores: 'pai', 'filho', None
 
-    # Índice composto para garantir unicidade
+
     __table_args__ = (
         db.UniqueConstraint('chave', 'mes_referencia', name='uq_chave_mes'),
     )

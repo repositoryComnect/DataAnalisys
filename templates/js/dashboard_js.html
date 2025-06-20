@@ -1,91 +1,13 @@
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
-<!-- Atualização dinâmica dos chamados em aberto -->
-    <script>
-     /*   document.addEventListener("DOMContentLoaded", function () {
-            fetch('/dashboard/ChamadosSuporte', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    document.getElementById("chamados-abertos").textContent = "Abertos: " + data.total_chamados;
-                } else {
-                    document.getElementById("chamados-abertos").textContent = "Erro ao carregar";
-                }
-            })
-            .catch(error => {
-                document.getElementById("chamados-abertos").textContent = "Erro de conexão";
-            });
-        });*/
-    </script>
-
-<!-- Bloco que traz as informações dos chamados finalizados -->
-    <script>
-    /*    document.addEventListener("DOMContentLoaded", function () {
-            fetch('/dashboard/ChamadosSuporte/finalizado', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    document.getElementById("chamados-finalizados").textContent = "Finalizados: " + data.total_chamados;
-                } else {
-                    document.getElementById("chamados-finalizados").textContent = "Erro ao carregar";
-                }
-            })
-            .catch(error => {
-                document.getElementById("chamados-finalizados").textContent = "Erro de conexão";
-            });
-        });*/
-    </script>
-
-<!-- Bloco que traz as informações das filas -->
-     <script>
-       /* document.addEventListener("DOMContentLoaded", function () {
-            fetch('/dashboard/ChamadosSuporte/fila', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    document.getElementById("chamados-fila").textContent = "Fila: " + data.total_chamados;
-                } else {
-                    document.getElementById("chamados-fila").textContent = "Erro ao carregar";
-                }
-            })
-            .catch(error => {
-                document.getElementById("chamados-fila").textContent = "Erro de conexão";
-            });
-        });*/
-    </script>
 
 <!-- Scripts para carregar os dados charts SLAs e Abertos VS Fechados-->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-
-            // Chamados Abertos
-            fetch('/dashboard/ChamadosSuporte', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        document.getElementById("chamados-abertos").textContent = "Abertos: " + data.total_chamados;
-                    }
-                });
-
-            // Chamados Finalizados
-            fetch('/dashboard/ChamadosSuporte/finalizado', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        document.getElementById("chamados-finalizados").textContent = "Finalizados: " + data.total_chamados;
-                    }
-                });
-
             // Chamados do Mês Atual
             fetch('/dashboard/ChamadosSuporte/contagem_mes_atual', {
                 method: 'POST'
@@ -101,27 +23,6 @@
             .catch(error => {
                 console.error("Erro de conexão:", error);
             });
-
-            //document.getElementById('btnSaveChartAF').addEventListener('click', function () {
-            //    const link = document.createElement('a');
-            //    const canvas = document.getElementById('statusChart');
-            //    link.href = canvas.toDataURL('image/png');
-            //    link.download = 'grafico-abertos-vs-finalizados.png';
-            //    link.click();
-            //});
-
-            // Botão: imprimir gráfico
-          //  document.getElementById('btnPrintChartAF').addEventListener('click', function () {
-               // const canvas = document.getElementById('statusChart');
-                //const win = window.open('', '_blank');
-                //win.document.write('<html><head><title>Imprimir Gráfico</title></head><body>');
-                //win.document.write('<img src="' + canvas.toDataURL('image/png') + '" style="width:100%;">');
-                //win.document.write('</body></html>');
-                //win.document.close();
-                //win.focus();
-                //win.print();
-            //});
-
 
              fetch('/dashboard/ChamadosSuporte/sla_andamento', { method: 'POST' })
                 .then(response => response.json())
@@ -143,7 +44,7 @@
                             data: {
                                 labels: ['Dentro do Prazo', 'Expirado'],
                                 datasets: [{
-                                    label: 'SLA1 - Primeiro Atendimento',
+                                    label: 'SLA - Atendimento',
                                     data: [dentroPrazo, expirado],
                                     backgroundColor: ['#007bffcc', '#dc3545cc'],
                                     borderRadius: 6,
@@ -153,8 +54,11 @@
                             options: {
                                 responsive: true,
                                 plugins: {
-                                    legend: { position: 'bottom' },
+                                    legend: true,
                                     tooltip: {
+                                        titleColor: '#fff',  // título do tooltip branco
+                                        bodyColor: '#fff',   // corpo do tooltip branco
+                                        backgroundColor: 'rgba(0,0,0,0.7)',  // fundo escuro para contraste
                                         callbacks: {
                                             label: function(context) {
                                                 const value = context.raw;
@@ -164,7 +68,7 @@
                                         }
                                     },
                                     datalabels: {
-                                        color: '#000',
+                                        color: '#fff',  // Texto dos rótulos em branco
                                         anchor: 'center',
                                         align: 'top',
                                         formatter: function(value, context) {
@@ -178,10 +82,21 @@
                                 scales: {
                                     y: {
                                         beginAtZero: true,
-                                        ticks: { precision: 0 }
+                                        ticks: { 
+                                            precision: 0,
+                                            color: '#fff'  // Texto do eixo Y branco
+                                        },
+                                        grid: {
+                                            display: false
+                                        }
                                     },
                                     x: {
-                                        grid: { display: false }
+                                        ticks: {
+                                            color: '#fff'  // Texto do eixo X branco
+                                        },
+                                        grid: {
+                                            display: false
+                                        }
                                     }
                                 }
                             },
@@ -196,99 +111,92 @@
                     console.error("Erro ao carregar dados de SLA:", error);
                 });
 
-            // Botão: salvar imagem
-            /*document.getElementById('btnSaveChart').addEventListener('click', function () {
-                const link = document.createElement('a');
-                link.href = document.getElementById('slaChart').toDataURL('image/png');
-                link.download = 'grafico-sla.png';
-                link.click();
-            });*/
 
-            // Botão: imprimir gráfico
-           /* document.getElementById('btnPrintChart').addEventListener('click', function () {
-                const canvas = document.getElementById('slaChart');
-                const win = window.open('', '_blank');
-                win.document.write('<html><head><title>Imprimir Gráfico</title></head><body>');
-                win.document.write('<img src="' + canvas.toDataURL('image/png') + '" style="width:100%;">');
-                win.document.write('</body></html>');
-                win.document.close();
-                win.focus();
-                win.print();
-            });*/
+           
 
             fetch('/dashboard/ChamadosSuporte/sla_andamento', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        const dentroPrazo = data.sla2_nao_expirado;
-                        const expirado = data.sla2_expirado;
-                        const total = dentroPrazo + expirado;
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    const dentroPrazo = data.sla2_nao_expirado;
+                    const expirado = data.sla2_expirado;
+                    const total = dentroPrazo + expirado;
 
-                        const porcentagens = [
-                            ((dentroPrazo / total) * 100).toFixed(1),
-                            ((expirado / total) * 100).toFixed(1)
-                        ];
+                    const porcentagens = [
+                        ((dentroPrazo / total) * 100).toFixed(1),
+                        ((expirado / total) * 100).toFixed(1)
+                    ];
 
-                        const slaCtx = document.getElementById('slaChart2').getContext('2d');
-                        new Chart(slaCtx, {
-                            type: 'bar',
-                            data: {
-                                labels: ['Dentro do Prazo', 'Expirado'],
-                                datasets: [
-                                    {
-                                        label: 'SLA2 - Resolução',
-                                        data: [data.sla2_nao_expirado, data.sla2_expirado],
-                                        backgroundColor: ['#007bffcc', '#dc3545cc'],
-                                        borderRadius: 6,
-                                        barThickness: 30
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: { position: 'bottom' },
-                                    tooltip: {
-                                        callbacks: {
-                                            label: function(context) {
-                                                const value = context.raw;
-                                                const percentage = ((value / total) * 100).toFixed(1);
-                                                return `${value} (${percentage}%)`;
-                                            }
-                                        }
-                                    },
-                                    datalabels: {
-                                        color: '#000',
-                                        anchor: 'center',
-                                        align: 'end',
-                                        formatter: function(value, context) {
-                                            return `${porcentagens[context.dataIndex]}%`;
-                                        },
-                                        font: {
-                                            weight: 'bold'
+                    const slaCtx = document.getElementById('slaChart2').getContext('2d');
+                    new Chart(slaCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Dentro do Prazo', 'Expirado'],
+                            datasets: [{
+                                label: 'SLA - Resolução',
+                                data: [data.sla2_nao_expirado, data.sla2_expirado],
+                                backgroundColor: ['#007bffcc', '#dc3545cc'],
+                                borderRadius: 6,
+                                barThickness: 30
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: true,
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const value = context.raw;
+                                            const percentage = ((value / total) * 100).toFixed(1);
+                                            return `${value} (${percentage}%)`;
                                         }
                                     }
                                 },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        ticks: { precision: 0 }
+                                datalabels: {
+                                    color: '#fff', // Texto dos rótulos em branco
+                                    anchor: 'center',
+                                    align: 'end',
+                                    formatter: function(value, context) {
+                                        return `${porcentagens[context.dataIndex]}%`;
                                     },
-                                    x: {
-                                        grid: { display: false }
+                                    font: {
+                                        weight: 'bold'
                                     }
                                 }
                             },
-                            plugins: [ChartDataLabels]
-                        });
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0,
+                                        color: '#fff' // Texto do eixo Y branco
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: '#fff' // Texto do eixo X branco
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        },
+                        plugins: [ChartDataLabels]
+                    });
 
-                    } else {
-                        console.error("Erro nos dados:", data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error("Erro ao carregar dados de SLA:", error);
-                });
+                } else {
+                    console.error("Erro nos dados:", data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Erro ao carregar dados de SLA:", error);
+            });
+
 
             // Botão: salvar imagem
             /*document.getElementById('btnSaveChart2').addEventListener('click', function () {
@@ -331,9 +239,10 @@
                 },
                 options: {
                     plugins: {
+                        legend: true,
                         title: {
                             display: true,
-                            text: `Chamados por Grupo - ${data.mes_referencia}`
+                            
                         },
                         legend: {
                             display: true,
@@ -387,111 +296,94 @@
 
     </script>
 
-<!-- Bloco que traz as informações das Operadores -->
+
     <script>
-        fetch('/dashboard/ChamadosSuporte/por_operador_mes_atual', {
-        method: 'POST'
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    const ctx = document.getElementById('OperadorAtendimentoChart').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: data.data.labels,
-                            datasets: [{
-                                label: "Chamados por Operador",
-                                data: data.data.datasets[0].data,
-                                backgroundColor: data.data.datasets[0].backgroundColor,
-                                barThickness: 20  // ← AQUI você controla a espessura
-                            }]
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/dashboard/ChamadosSuporte/por_tipo_solicitacao_mes_atual', {
+            method: 'POST'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                const ctx = document.getElementById('TicketsCanalChart').getContext('2d');
+
+                if (window.ticketsCanalChartInstance) {
+                    window.ticketsCanalChartInstance.destroy();
+                }
+
+                // Altere aqui cada dataset para adicionar espessura personalizada
+                data.data.datasets.forEach(ds => {
+                    ds.barThickness = 15;              // Define a largura fixa da barra
+                    ds.maxBarThickness = 40;           // Largura máxima (opcional)
+                    ds.categoryPercentage = 0.8;       // Diminui o espaço entre as categorias
+                    ds.barPercentage = 0.9;            // Aumenta o preenchimento dentro da categoria
+                });
+
+                window.ticketsCanalChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.data.labels,
+                        datasets: data.data.datasets
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: {
+                            mode: 'nearest',
+                            intersect: true
                         },
-                        options: {
-                            plugins: {
+                        plugins: {
+                            legend: {
+                                labels: { color: '#fff' }
+                            },
+                            tooltip: {
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                backgroundColor: 'rgba(0,0,0,0.7)'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: false,
+                                    text: false,
+                                    color: '#fff'
+                                },
+                                ticks: {
+                                    color: '#fff'
+                                },
+                                grid: {
+                                    color: 'rgba(255,255,255,0.1)'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: `Chamados por Operador - ${data.mes_referencia}`
+                                    text: 'Quantidade de Chamados',
+                                    color: '#fff'
                                 },
-                                legend: { display: false }
-                            },
-                            responsive: true,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        precision: 0
-                                    }
+                                ticks: {
+                                    color: '#fff',
+                                    precision: 0
                                 },
-                                x: {
-                                    ticks: {
-                                        autoSkip: false,
-                                        maxRotation: 45,
-                                        minRotation: 0
-                                    }
+                                grid: {
+                                    color: 'rgba(255,255,255,0.1)'
                                 }
                             }
                         }
-                    });
-                } else {
-                    console.error("Erro ao carregar dados:", data.message);
-                }
-            })
-            .catch(err => console.error("Erro de conexão:", err));
-
-    </script>
-
-
-<!-- Bloco que traz as informações das Solicitações -->
-    <script>
-        fetch('/dashboard/ChamadosSuporte/por_tipo_solicitacao_mes_atual', {
-            method: 'POST'
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        const ctx = document.getElementById('TicketsCanalChart').getContext('2d');
-                        new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: data.data.labels,
-                                datasets: [{
-                                    label: 'Chamados por Canal',
-                                    data: data.data.datasets[0].data,
-                                    backgroundColor: data.data.datasets[0].backgroundColor,
-                                    maxBarThickness: 10
-                                }]
-                            },
-                            options: {
-                                indexAxis: 'y', // Barras horizontais
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: `Chamados por Canal - ${data.mes_referencia}`
-                                    },
-                                    legend: { display: false }
-                                },
-                                responsive: true,
-                                scales: {
-                                    x: {
-                                        beginAtZero: true,
-                                        ticks: { precision: 0 }
-                                    },
-                                    y: {
-                                        ticks: {
-                                            autoSkip: false,
-                                            maxRotation: 0,
-                                            minRotation: 0
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    } else {
-                        console.error("Erro ao carregar dados:", data.message);
                     }
-                })
-                .catch(err => console.error("Erro de conexão:", err));
+                });
+            } else {
+                console.error("Erro ao carregar dados:", data.message);
+            }
+        })
+        .catch(err => console.error("Erro de conexão:", err));
+    });
 
     </script>
+
+
+
+
+
 

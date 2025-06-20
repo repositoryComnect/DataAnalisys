@@ -1,0 +1,750 @@
+<!--Bloco Abertos VS Status-->
+   <script>
+    // Variáveis globais
+    let statusChart = null;
+
+    // Cores fixas para status específicos
+    const coresStatusFixas = {
+        "Aguardando Atendimento": "#FFD700",
+        "Aguardando Cliente": "#20B2AA",
+        "Andamento": "#77DD77",
+        "Transferência": "#BDB76B",
+        "Aguardando Terceiros": "#1E90FF",
+        "Aguardando Suporte Nível 2": "#F4A460",
+        "Aguardando Analise Nível 2": "#FF0000",
+        "Agendamento": "#6A5ACD",
+        "Aguardando Aprovação": "#BDB76B"
+    };
+
+    // Função para verificar se o elemento canvas existe
+    function verificarCanvas() {
+        const canvas = document.getElementById('statusChart');
+        if (!canvas) {
+            console.error('Elemento canvas não encontrado! Verifique se existe um elemento com id="statusChart"');
+            return false;
+        }
+        return true;
+    }
+
+    // Função para processar dados para o gráfico de barras
+    function processarDadosParaBarras(apiData) {
+        try {
+            const grupos = apiData.grupos;
+            const status = apiData.labels;
+
+            const datasets = status.map((statusName, statusIndex) => {
+                return {
+                    label: statusName,
+                    data: grupos.map(grupo => {
+                        return apiData.chamados_abertos.filter(chamado =>
+                            chamado.nome_grupo === grupo &&
+                            chamado.nome_status === statusName
+                        ).length;
+                    }),
+                    backgroundColor: coresStatusFixas[statusName] || '#999999',
+                    borderColor: '#2d2d2d',
+                    borderWidth: 1
+                };
+            });
+
+            return {
+                labels: grupos,
+                datasets: datasets
+            };
+        } catch (error) {
+            console.error('Erro ao processar dados:', error);
+            return null;
+        }
+    }
+
+    // Função para criar/atualizar o gráfico
+    function criarGrafico(processedData, totalChamados) {
+        try {
+            if (!verificarCanvas()) return;
+
+            const ctx = document.getElementById('statusChart').getContext('2d');
+
+            if (statusChart) {
+                statusChart.destroy();
+            }
+
+            const config = {
+                type: 'bar',
+                data: processedData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: { color: '#fff' }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#fff',
+                                precision: 0
+                            },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#fff',
+                                font: { size: 12 },
+                                boxWidth: 12
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: `Total de Chamados Abertos: ${totalChamados}`,
+                            color: '#fff',
+                            font: { size: 16 }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff'
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            anchor: 'center',
+                            align: 'center',
+                            formatter: function(value) {
+                                return value > 0 ? value : null;
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 20
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels] // Ativa o plugin aqui
+            };
+
+            statusChart = new Chart(ctx, config);
+            console.log('Gráfico criado com sucesso!');
+
+        } catch (error) {
+            console.error('Erro ao criar gráfico:', error);
+        }
+    }
+
+    // Função principal para carregar dados
+    async function carregarDados() {
+        try {
+            console.log('Iniciando carregamento de dados...');
+
+            if (!verificarCanvas()) return;
+
+            const response = await fetch('/dashboard/ChamadosSuporte/estatisticas_mensais');
+
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Dados recebidos:', data);
+
+            if (data.status === "success") {
+                const processedData = processarDadosParaBarras({
+                    ...data.data,
+                    chamados_abertos: data.chamados_abertos
+                });
+                if (processedData) {
+                    criarGrafico(processedData, data.data.total);
+                }
+            } else {
+                console.error('Erro na API:', data.message);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados:', error);
+        }
+    }
+
+    // Inicialização quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM carregado');
+        carregarDados();
+
+        window.addEventListener('resize', function () {
+            if (statusChart) {
+                statusChart.update();
+            }
+        });
+    });
+</script>
+
+
+<!-- Bloco que me traz os chamados abertos VS resolvidos no mês-->
+    <script>
+        fetch('/dashboard/ChamadosSuporte/abertos_vs_resolvidos', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    const ctx = document.getElementById('LinhaAbertosResolvidosChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,
+                            datasets: data.datasets
+                        },
+                        options: {
+                            responsive: true,
+                            interaction: {
+                                mode: 'index',
+                                intersect: false,
+                            },
+                            stacked: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    color: '#fff' 
+                                },
+                                legend: {
+                                    labels: {
+                                        color: '#fff'
+                                    }
+                                },
+                                tooltip: {
+                                    titleColor: '#fff', // título tooltip branco
+                                    bodyColor: '#fff',  // corpo tooltip branco
+                                    backgroundColor: 'rgba(0,0,0,0.7)'  // fundo escuro tooltip
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    stacked: true,
+                                    grid: { display: false },
+                                    ticks: { color: '#fff' },
+                                    maxBarThickness: 3 //    // controla espaço entre grupos de barras (padrão 0.8)
+                                },
+                                y: {
+                                    stacked: true,
+                                    beginAtZero: true,
+                                    ticks: { 
+                                        color: '#fff',
+                                        precision: 0
+                                    },
+                                    grid: { color: 'rgba(255,255,255,0.1)' }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.error("Erro ao carregar dados:", data.message);
+                }
+            })
+            .catch(error => console.error("Erro de conexão:", error));
+    </script>
+
+<!-- Bloco que me traz as ligações atendidas no dia no mês-->
+   <script>
+    fetch('/dashboard/call/v2/report/attendants_performance', { method: 'POST' })
+    .then(res => res.json())
+    .then(res => {
+        const labels = res.data.map(r => r.nome);
+        const values = res.data.map(r => r.total);
+
+        new Chart(document.getElementById('LigacoesAtendidasOperadorChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ligações Atendidas',
+                    data: values,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    barThickness: 10  
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#fff'   // texto branco no eixo Y
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#fff'   // texto branco no eixo X
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        titleColor: '#fff',  // título do tooltip branco
+                        bodyColor: '#fff',   // corpo do tooltip branco
+                        backgroundColor: 'rgba(0,0,0,0.7)'  // fundo escuro para contraste
+                    },
+                    legend: {
+                        display: false,
+                        labels: {
+                            color: '#fff'    // legenda em branco
+                        }
+                    }
+                }
+            }
+        });
+    });
+   </script>
+
+<!-- Bloco que traz as chamadas atendidas Vyrtos -->
+   <script>
+    fetch('/dashboard/call/v2/report/attendants_performance_vyrtos', { method: 'POST' })
+    .then(res => res.json())
+    .then(res => {
+        const labels = res.data.map(r => r.nome);
+        const values = res.data.map(r => r.total);
+
+        new Chart(document.getElementById('LigacoesAtendidasOperadorChartVyrtos'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ligações Atendidas',
+                    data: values,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    barThickness: 10  
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#fff'   // texto branco no eixo Y
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#fff'   // texto branco no eixo X
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        titleColor: '#fff',  // título do tooltip branco
+                        bodyColor: '#fff',   // corpo do tooltip branco
+                        backgroundColor: 'rgba(0,0,0,0.7)'  // fundo escuro para contraste
+                    },
+                    legend: {
+                        display: false,
+                        labels: {
+                            color: '#fff'    // legenda em branco
+                        }
+                    }
+                }
+            }
+        });
+    });
+   </script>
+
+
+<script>
+fetch('/dashboard/call/v2/report/queue_status', { method: 'POST' })
+  .then(res => res.json())
+  .then(res => {
+    if (res.status === 'success' && res.labels && res.datasets) {
+      const ctx = document.getElementById('SituacaoFilaChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: res.labels,
+          datasets: res.datasets.map(ds => ({
+            ...ds,
+            fill: false,
+            barThickness: 20, // aumenta a grossura da barra
+            borderWidth: 2,
+            tension: 0.1,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }))
+        },
+        options: {
+          responsive: true,
+          interaction: {
+            mode: 'nearest',
+            intersect: false,
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#fff' },
+              position: 'bottom'
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#fff' },
+              grid: { display: false }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#fff', precision: 0 },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            }
+          }
+        }
+      });
+    } else {
+      console.warn('Dados inválidos para gráfico:', res);
+    }
+  })
+  .catch(err => {
+    console.error('Erro ao buscar dados da fila:', err);
+  });
+</script>
+
+
+
+<!--Bloco que traz o status da fila vyrtos-->
+<script>
+fetch('/dashboard/call/v2/report/queue_status_vyrtus', { method: 'POST' })
+  .then(res => res.json())
+  .then(res => {
+    if (res.status === 'success' && res.labels && res.datasets) {
+      const ctx = document.getElementById('SituacaoFilaVyrtusChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: res.labels,
+          datasets: res.datasets.map(ds => ({
+            ...ds,
+            tension: 0.2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            barThickness: 20, // aumenta a grossura da barra
+            borderWidth: 2
+          }))
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#fff' }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              titleColor: '#fff',
+              bodyColor: '#fff'
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#fff' },
+              grid: { display: false }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#fff', precision: 0 },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            }
+          }
+        }
+      });
+    } else {
+      console.warn('Dados inválidos para gráfico:', res);
+    }
+  })
+  .catch(err => {
+    console.error('Erro ao buscar dados da fila Vyrtus:', err);
+  });
+</script>
+
+
+
+<!-- Bloco que me traz o status, mostra se o agente está conectado na ura -->
+    <script>
+    function carregarAgentesOnline() {
+    const agentesMap = {
+        2020: "Renato Ragga",
+        2021: "Matheus Silva",
+        2022: "Gustavo Maciel",
+        2023: "Raysa Melo",
+        2024: "Lucas Kaizer",
+        2025: "Danilo Neto",
+        2028: "Henrique",
+        2029: "Rafael Silva"
+    };
+
+    fetch('dashboard/call/v2/report/agents_status', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+        const listaEl = document.getElementById('agentList');
+        if (data.status === "success" && data.members.length > 0) {
+            const lista = data.members.map(agent => {
+            const nome = agentesMap[agent.agentNumber] || "Nome Desconhecido";
+
+            const totalSegundos = agent.tempo_online;
+            const horas = Math.floor(totalSegundos / 3600);
+            const minutos = Math.floor((totalSegundos % 3600) / 60);
+            const segundos = totalSegundos % 60;
+
+            let tempoFormatado = '';
+            if (horas > 0) {
+                tempoFormatado = `${horas}h ${minutos}m`;
+            } else {
+                tempoFormatado = `${minutos}m ${segundos}s`;
+            }
+
+            const pausaInfo = agent.em_pausa ? ` - Em pausa: ${agent.motivo_pausa}` : '';
+
+            // Fundo verde claro para online
+            return `<li class="list-group-item" style="background-color: #d4edda;">
+                        ${agent.agentNumber} - ${nome} - Online  
+                    </li>`;
+            }).join('');
+            listaEl.innerHTML = lista;
+        } else if(data.status === "success" && data.members.length === 0) {
+            listaEl.innerHTML = '<li class="list-group-item text-center text-muted">Nenhum agente encontrado.</li>';
+        } else {
+            listaEl.innerHTML = `<li class="list-group-item text-center text-danger">Erro: ${data.message || 'Erro desconhecido'}</li>`;
+        }
+        })
+        .catch(err => {
+        document.getElementById('agentList').innerHTML = '<li class="list-group-item text-center text-danger">Erro ao carregar agentes.</li>';
+        console.error(err);
+        });
+    }
+
+    window.addEventListener('load', carregarAgentesOnline);
+
+    </script>
+
+    <script>
+    fetch('/dashboard/ChamadosSuporte/sla_andamento_grupos', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                const dentroPrazo = data.sla1_nao_expirado;
+                const expirado = data.sla1_expirado;
+                const total = dentroPrazo + expirado;
+
+                const porcentagens = [
+                    ((dentroPrazo / total) * 100).toFixed(1),
+                    ((expirado / total) * 100).toFixed(1)
+                ];
+
+                const slaCtx = document.getElementById('slaGrupoChart').getContext('2d');
+
+                new Chart(slaCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Dentro do Prazo', 'Expirado'],
+                        datasets: [{
+                            label: 'SLA - Atendimento',
+                            data: [dentroPrazo, expirado],
+                            backgroundColor: ['#007bffcc', '#dc3545cc'],
+                            borderRadius: 6,
+                            barThickness: 30
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: true,
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.raw;
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${value} (${percentage}%)`;
+                                    }
+                                },
+                                titleColor: '#fff',    // texto branco no título tooltip
+                                bodyColor: '#fff',     // texto branco no corpo tooltip
+                                backgroundColor: 'rgba(0,0,0,0.7)' // fundo escuro tooltip
+                            },
+                            datalabels: {
+                                color: '#fff',      // labels dentro das barras em branco
+                                anchor: 'center',
+                                align: 'top',
+                                formatter: function(value, context) {
+                                    return `${porcentagens[context.dataIndex]}%`;
+                                },
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0,
+                                    color: '#fff' // ticks eixo Y branco
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#fff' // ticks eixo X branco
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                });
+
+            } else {
+                console.error("Erro nos dados:", data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Erro ao carregar dados de SLA:", error);
+        });
+
+    fetch('/dashboard/ChamadosSuporte/sla_andamento_grupos', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                const dentroPrazo = data.sla2_nao_expirado;
+                const expirado = data.sla2_expirado;
+                const total = dentroPrazo + expirado;
+
+                const porcentagens = [
+                    ((dentroPrazo / total) * 100).toFixed(1),
+                    ((expirado / total) * 100).toFixed(1)
+                ];
+
+                const slaCtx = document.getElementById('slaGrupoChart2').getContext('2d');
+                new Chart(slaCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Dentro do Prazo', 'Expirado'],
+                        datasets: [
+                            {
+                                label: 'SLA - Resolução',
+                                data: [dentroPrazo, expirado],
+                                backgroundColor: ['#007bffcc', '#dc3545cc'],
+                                borderRadius: 6,
+                                barThickness: 30
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: true,
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.raw;
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${value} (${percentage}%)`;
+                                    }
+                                },
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                backgroundColor: 'rgba(0,0,0,0.7)'
+                            },
+                            datalabels: {
+                                color: '#fff',
+                                anchor: 'center',
+                                align: 'end',
+                                formatter: function(value, context) {
+                                    return `${porcentagens[context.dataIndex]}%`;
+                                },
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0,
+                                    color: '#fff'
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#fff'
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                });
+
+            } else {
+                console.error("Erro nos dados:", data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Erro ao carregar dados de SLA:", error);
+        });
+    </script>
+
+<!-- Bloco que recarrega a página a cada 5 minutos-->
+    <script>
+        // Recarrega a página a cada 5 minutos (300000 milissegundos)
+        setTimeout(function () {
+            location.reload();
+        }, 300000);
+    </script>
+
+<!--Bloco que alterna entre tema escuro e claro-->
+    <script>
+        document.getElementById("toggle-theme").addEventListener("click", function () {
+            const body = document.body;
+            const cards = document.querySelectorAll('.card');
+            const button = this;
+
+            // Alterna a classe do body
+            body.classList.toggle("dark-mode");
+            body.classList.toggle("light-mode");
+
+            // Alterna a classe dos cards
+            cards.forEach(card => {
+                card.classList.toggle("dark-mode");
+                card.classList.toggle("light-mode");
+            });
+
+            // Atualiza o texto do botão
+            if (body.classList.contains("dark-mode")) {
+                button.classList.remove("btn-dark");
+                button.classList.add("btn-light");
+                button.textContent = " Modo Claro";
+            } else {
+                button.classList.remove("btn-light");
+                button.classList.add("btn-dark");
+                button.textContent = " Modo Escuro";
+            }
+        });
+
+        // Aplica o tema padrão
+        window.onload = () => {
+            document.body.classList.add("dark-mode");
+            document.querySelectorAll('.card').forEach(card => card.classList.add("dark-mode"));
+        }
+    </script>
