@@ -3,17 +3,17 @@ from modules.delgrande.filas import utils
 from modules.delgrande.auth.utils import authenticate 
 from application.models import Fila, FilaVyrtus, db
 from settings.endpoints import CREDENTIALS
-from datetime import datetime
+from datetime import datetime, timedelta
+from sqlalchemy import func
 
 
 filas_bp = Blueprint('filas_bp', __name__, url_prefix='/dashboard/call')
 
-
-# SUPORTE
 @filas_bp.route('/v2/report/queue_status', methods=['POST'])
-def importar_status_fila():
-    id = 1
+def grafico_status_fila_hoje():
     try:
+        id = 1
+
         # 1. Autenticar
         username = CREDENTIALS['username']
         password = CREDENTIALS['password']
@@ -50,30 +50,71 @@ def importar_status_fila():
             )
             db.session.add(nova_fila)
 
-        # 5. Retorno formatado para o front
+        # 5. Preparar dados por hora
+        hoje = datetime.now().date()
+        inicio_dia = datetime.combine(hoje, datetime.min.time())
+        fim_dia = inicio_dia + timedelta(days=1)
+
+        horas_do_dia = list(range(24))
+        completadas_por_hora = {hora: 0 for hora in horas_do_dia}
+        perdidas_por_hora = {hora: 0 for hora in horas_do_dia}  # abandonadas + transbordo
+
+        # Completadas por hora
+        resultados_completadas = db.session.query(
+            func.extract('hour', Fila.data).label('hora'),
+            func.sum(Fila.chamadas_completadas)
+        ).filter(
+            Fila.data >= inicio_dia,
+            Fila.data < fim_dia
+        ).group_by('hora').all()
+
+        for hora, total in resultados_completadas:
+            completadas_por_hora[int(hora)] = int(total or 0)
+
+        # Perdidas por hora (abandonadas + transbordo)
+        resultados_perdidas = db.session.query(
+            func.extract('hour', Fila.data).label('hora'),
+            (func.sum(Fila.chamadas_abandonadas) + func.sum(Fila.transbordo)).label('total_perdidas')
+        ).filter(
+            Fila.data >= inicio_dia,
+            Fila.data < fim_dia
+        ).group_by('hora').all()
+
+        for hora, total in resultados_perdidas:
+            perdidas_por_hora[int(hora)] = int(total or 0)
+
+        # 6. Retorno JSON para o gráfico
         return jsonify({
-            "status": "success",
-            "data": [{
-                "fila": status.get("name"),
-                "chamadas_recebidas": chamadas_recebidas,
-                "chamadas_completadas": chamadas_completadas,
-                "chamadas_abandonadas": chamadas_abandonadas,
-                "transbordo": transbordo,
-                "nivel_servico": status.get("servicelevelperf")
-            }]
+            'status': 'success',
+            'labels': [f'{h:02d}:00' for h in horas_do_dia],
+            'datasets': [
+                {
+                    'label': 'Chamadas Completadas',
+                    'data': [completadas_por_hora[h] for h in horas_do_dia],
+                    'backgroundColor': 'rgba(54, 162, 235, 0.5)',
+                    'borderColor': 'rgba(54, 162, 235, 1)',
+                    'borderWidth': 2,
+                    'fill': False
+                },
+                {
+                    'label': 'Chamadas Perdidas',
+                    'data': [perdidas_por_hora[h] for h in horas_do_dia],
+                    'backgroundColor': 'rgba(255, 99, 132, 0.6)',
+                    'borderColor': 'rgba(255, 99, 132, 1)',
+                    'borderWidth': 2,
+                    'fill': False
+                }
+            ],
+            'data_referencia': hoje.strftime('%d/%m/%Y')
         })
 
     except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            "status": "error",
-            "message": "Erro ao importar status da fila.",
-            "details": str(e)
-        }), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# VYRTUS
+
+
 @filas_bp.route('/v2/report/queue_status_vyrtus', methods=['POST'])
-def importar_status_fila_vyrtus():
+def queue_status_vyrtus_hourly():
     id = 10
     try:
         # 1. Autenticar
@@ -112,31 +153,76 @@ def importar_status_fila_vyrtus():
             )
             db.session.add(nova_fila)
 
-        # 5. Retorno formatado para o front
+        # 5. Preparar dados por hora
+        hoje = datetime.now().date()
+        inicio_dia = datetime.combine(hoje, datetime.min.time())
+        fim_dia = inicio_dia + timedelta(days=1)
+
+        horas_do_dia = list(range(24))
+        completadas_por_hora = {h: 0 for h in horas_do_dia}
+        perdidas_por_hora = {h: 0 for h in horas_do_dia}  # perdidas = abandonadas + transbordo
+
+        # Chamadas completadas por hora
+        resultados_completadas = db.session.query(
+            func.extract('hour', FilaVyrtus.data).label('hora'),
+            func.sum(FilaVyrtus.chamadas_completadas)
+        ).filter(
+            FilaVyrtus.data >= inicio_dia,
+            FilaVyrtus.data < fim_dia
+        ).group_by('hora').all()
+
+        for hora, total in resultados_completadas:
+            completadas_por_hora[int(hora)] = int(total or 0)
+
+        # Chamadas perdidas (abandonadas + transbordo) por hora
+        resultados_perdidas = db.session.query(
+            func.extract('hour', FilaVyrtus.data).label('hora'),
+            (func.sum(FilaVyrtus.transbordo) + func.sum(FilaVyrtus.chamadas_abandonadas)).label("total_perdidas")
+        ).filter(
+            FilaVyrtus.data >= inicio_dia,
+            FilaVyrtus.data < fim_dia
+        ).group_by('hora').all()
+
+        for hora, total in resultados_perdidas:
+            perdidas_por_hora[int(hora)] = int(total or 0)
+
+        # 6. Retorno JSON para o gráfico
         return jsonify({
             "status": "success",
-            "data": [{
-                "fila": status.get("name"),
-                "chamadas_recebidas": chamadas_recebidas,
-                "chamadas_completadas": chamadas_completadas,
-                "chamadas_abandonadas": chamadas_abandonadas,
-                "transbordo": transbordo,
-                "nivel_servico": status.get("servicelevelperf")
-            }]
+            "data_referencia": hoje.strftime('%d/%m/%Y'),
+            "labels": [f"{h:02d}:00" for h in horas_do_dia],
+            "datasets": [
+                {
+                    "label": "Chamadas Completadas",
+                    "data": [completadas_por_hora[h] for h in horas_do_dia],
+                    "backgroundColor": "rgba(54, 162, 235, 0.5)",
+                    "borderColor": "rgba(54, 162, 235, 1)",
+                    "borderWidth": 2,
+                    "fill": False
+                },
+                {
+                    "label": "Chamadas Perdidas",
+                    "data": [perdidas_por_hora[h] for h in horas_do_dia],
+                    "backgroundColor": "rgba(255, 99, 132, 0.6)",
+                    "borderColor": "rgba(255, 99, 132, 1)",
+                    "borderWidth": 2,
+                    "fill": False
+                }
+            ]
         })
 
     except Exception as e:
-        db.session.rollback()
         return jsonify({
             "status": "error",
-            "message": "Erro ao importar status da fila.",
+            "message": "Erro ao gerar dados por hora.",
             "details": str(e)
         }), 500
 
 
+
 @filas_bp.route('/v2/report/agents_status', methods=['POST'])
 def agentes_online_status():
-    id = 1  # ou receber via parâmetro, se quiser
+    id = 1  
     try:
         username = CREDENTIALS['username']
         password = CREDENTIALS['password']

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api')
 
-@auth_bp.route('/autenticar', methods=['POST'])  # Mudado para POST e rota simplificada
+@auth_bp.route('/autenticar', methods=['POST'])
 def token_desk():        
     headers = {
         'Authorization': endpoints.CREDENTIALS_DESK['Authorization'],
@@ -28,6 +28,6 @@ def token_desk():
                 "status_code": response.status_code,
                 "response": response.text
             }), response.status_code
-            
+               
     except requests.exceptions.RequestException as e:
         return jsonify({"error": str(e)}), 500

@@ -63,7 +63,8 @@ def login():
             session['username'] = user.username
 
             # Redireciona para a página inicial (home)
-            return redirect(url_for('home_bp.render_home'))  # Redireciona para a rota 'home'
+            #return redirect(url_for('home_bp.render_admin'))  # Redireciona para a rota 'home'
+            return render_template('admin.html')
         else:
             print("Credenciais inválidas ou senha incorreta.")
             flash('Credenciais inválidas. Tente novamente.', 'danger')  # Exibe mensagem de erro
