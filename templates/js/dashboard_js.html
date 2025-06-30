@@ -1,224 +1,106 @@
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js, Plugins e Bootstrap (garanta que estão antes do script principal) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Script principal -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const modalElement = document.getElementById('modalChamadosExpirados');
+    const listaChamados = document.getElementById('listaChamados');
+    const modalInstance = new bootstrap.Modal(modalElement);
 
-
-<!-- Scripts para carregar os dados charts SLAs e Abertos VS Fechados-->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Chamados do Mês Atual
-            fetch('/dashboard/ChamadosSuporte/contagem_mes_atual', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    document.getElementById("total-chamados-mes").textContent = data.total_mes_atual;
-                } else {
-                    console.error("Erro ao carregar a contagem:", data.message);
-                }
-            })
-            .catch(error => {
-                console.error("Erro de conexão:", error);
-            });
-
-             fetch('/dashboard/ChamadosSuporte/sla_andamento', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        const dentroPrazo = data.sla1_nao_expirado;
-                        const expirado = data.sla1_expirado;
-                        const total = dentroPrazo + expirado;
-
-                        const porcentagens = [
-                            ((dentroPrazo / total) * 100).toFixed(1),
-                            ((expirado / total) * 100).toFixed(1)
-                        ];
-
-                        const slaCtx = document.getElementById('slaChart').getContext('2d');
-
-                        new Chart(slaCtx, {
-                            type: 'bar',
-                            data: {
-                                labels: ['Dentro do Prazo', 'Expirado'],
-                                datasets: [{
-                                    label: 'SLA - Atendimento',
-                                    data: [dentroPrazo, expirado],
-                                    backgroundColor: ['#007bffcc', '#dc3545cc'],
-                                    borderRadius: 6,
-                                    barThickness: 30
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: true,
-                                    tooltip: {
-                                        titleColor: '#fff',  // título do tooltip branco
-                                        bodyColor: '#fff',   // corpo do tooltip branco
-                                        backgroundColor: 'rgba(0,0,0,0.7)',  // fundo escuro para contraste
-                                        callbacks: {
-                                            label: function(context) {
-                                                const value = context.raw;
-                                                const percentage = ((value / total) * 100).toFixed(1);
-                                                return `${value} (${percentage}%)`;
-                                            }
-                                        }
-                                    },
-                                    datalabels: {
-                                        color: '#fff',  // Texto dos rótulos em branco
-                                        anchor: 'center',
-                                        align: 'top',
-                                        formatter: function(value, context) {
-                                            return `${porcentagens[context.dataIndex]}%`;
-                                        },
-                                        font: {
-                                            weight: 'bold'
-                                        }
-                                    }
-                                },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        ticks: { 
-                                            precision: 0,
-                                            color: '#fff'  // Texto do eixo Y branco
-                                        },
-                                        grid: {
-                                            display: false
-                                        }
-                                    },
-                                    x: {
-                                        ticks: {
-                                            color: '#fff'  // Texto do eixo X branco
-                                        },
-                                        grid: {
-                                            display: false
-                                        }
-                                    }
-                                }
-                            },
-                            plugins: [ChartDataLabels]
-                        });
-
-                    } else {
-                        console.error("Erro nos dados:", data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error("Erro ao carregar dados de SLA:", error);
-                });
-
-
-           
-
-            fetch('/dashboard/ChamadosSuporte/sla_andamento', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    const dentroPrazo = data.sla2_nao_expirado;
-                    const expirado = data.sla2_expirado;
-                    const total = dentroPrazo + expirado;
-
-                    const porcentagens = [
-                        ((dentroPrazo / total) * 100).toFixed(1),
-                        ((expirado / total) * 100).toFixed(1)
-                    ];
-
-                    const slaCtx = document.getElementById('slaChart2').getContext('2d');
-                    new Chart(slaCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: ['Dentro do Prazo', 'Expirado'],
-                            datasets: [{
-                                label: 'SLA - Resolução',
-                                data: [data.sla2_nao_expirado, data.sla2_expirado],
-                                backgroundColor: ['#007bffcc', '#dc3545cc'],
-                                borderRadius: 6,
-                                barThickness: 30
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: true,
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            const value = context.raw;
-                                            const percentage = ((value / total) * 100).toFixed(1);
-                                            return `${value} (${percentage}%)`;
-                                        }
-                                    }
-                                },
-                                datalabels: {
-                                    color: '#fff', // Texto dos rótulos em branco
-                                    anchor: 'center',
-                                    align: 'end',
-                                    formatter: function(value, context) {
-                                        return `${porcentagens[context.dataIndex]}%`;
-                                    },
-                                    font: {
-                                        weight: 'bold'
-                                    }
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        precision: 0,
-                                        color: '#fff' // Texto do eixo Y branco
-                                    },
-                                    grid: {
-                                        display: false
-                                    }
-                                },
-                                x: {
-                                    ticks: {
-                                        color: '#fff' // Texto do eixo X branco
-                                    },
-                                    grid: {
-                                        display: false
-                                    }
-                                }
+    function criarSlaChart(ctx, label, naoExpirado, expirado, codigosExpirados) {
+        const total = naoExpirado + expirado;
+        return new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Dentro do Prazo', 'Expirado'],
+                datasets: [{
+                    label: label,
+                    data: [naoExpirado, expirado],
+                    backgroundColor: ['#007bffcc', '#dc3545cc'],
+                    borderRadius: 6,
+                    barThickness: 30
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: false,
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const value = ctx.raw;
+                                const percent = ((value / total) * 100).toFixed(1);
+                                return `${value} (${percent}%)`;
                             }
-                        },
-                        plugins: [ChartDataLabels]
-                    });
+                        }
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        anchor: 'center',
+                        align: 'top',
+                        formatter: val => ((val / total) * 100).toFixed(1) + '%',
+                        font: { weight: 'bold' }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#fff' }, grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { display: false } }
+                },
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        if (idx === 1 && codigosExpirados.length > 0) {  // barra "Expirado"
+                            listaChamados.innerHTML = '';
+                            codigosExpirados.forEach(codigo => {
+                                const li = document.createElement('li');
+                                li.style.marginBottom = '8px';
 
-                } else {
-                    console.error("Erro nos dados:", data.message);
+                                const link = document.createElement('a');
+                                link.href = `https://comnect.desk.ms/?Ticket#ChamadosSuporte:${codigo}`;
+                                link.target = '_blank';
+                                link.textContent = codigo;
+                                link.style.color = '#ffc107';
+
+                                li.appendChild(link);
+                                listaChamados.appendChild(li);
+                            });
+                            modalInstance.show();
+                        }
+                    }
                 }
-            })
-            .catch(error => {
-                console.error("Erro ao carregar dados de SLA:", error);
-            });
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
 
-
-            // Botão: salvar imagem
-            /*document.getElementById('btnSaveChart2').addEventListener('click', function () {
-                const link = document.createElement('a');
-                link.href = document.getElementById('slaChart2').toDataURL('image/png');
-                link.download = 'grafico-sla.png';
-                link.click();
-            });*/
-
-            // Botão: imprimir gráfico
-            /*document.getElementById('btnPrintChart2').addEventListener('click', function () {
-                const canvas = document.getElementById('slaChart2');
-                const win = window.open('', '_blank');
-                win.document.write('<html><head><title>Imprimir Gráfico</title></head><body>');
-                win.document.write('<img src="' + canvas.toDataURL('image/png') + '" style="width:100%;">');
-                win.document.write('</body></html>');
-                win.document.close();
-                win.focus();
-                win.print();
-            });*/
-        });       
-    </script>
+    fetch('/dashboard/ChamadosSuporte/sla_andamento', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                criarSlaChart(
+                    document.getElementById('slaChart').getContext('2d'),
+                    'SLA - Atendimento',
+                    data.sla1_nao_expirado,
+                    data.sla1_expirado,
+                    data.codigos_sla1 || []
+                );
+                criarSlaChart(
+                    document.getElementById('slaChart2').getContext('2d'),
+                    'SLA - Resolução',
+                    data.sla2_nao_expirado,
+                    data.sla2_expirado,
+                    data.codigos_sla2 || []
+                );
+            } else {
+                console.error('Erro no carregamento dos dados SLA:', data.message);
+            }
+        })
+        .catch(e => console.error('Erro na requisição SLA:', e));
+});
+</script>
 
 <!-- Bloco que traz as informações dos grupos -->
     <script>
@@ -383,6 +265,31 @@
     </script>
 
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    fetch('/dashboard/ChamadosSuporte/contagem_mes_atual', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            console.log("Total no mês:", data.total_mes_atual);
+            console.log("Abertos:", data.total_abertos);
+            console.log("Finalizados:", data.total_finalizados);
+            console.log("Mês de referência:", data.mes_referencia);
+            console.log("Registros processados:", data.registros_processados);
+        } else {
+            console.error("Erro:", data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Erro ao buscar dados:", error);
+    });
+});
+</script>
 
 
 

@@ -10,47 +10,63 @@
 </head>
 <body>
 {% include 'header/model-header.html' %}
-<div class="container my-4">
-  <h3 class="text-center mb-4"><span>Desempenho de</span> <span id="colaboradorNome">Colaborador</span></h3><br><br>
-
-  <div class="row justify-content-center mb-4">
-  <div class="col-auto">
-    <div class="btn-group" role="group" aria-label="Filtros de período">
-      <button type="button" class="btn btn-outline-secondary filtro-btn active" data-dias="1">1 dia</button>
-      <button type="button" class="btn btn-outline-secondary filtro-btn" data-dias="7">7 dias</button>
-      <button type="button" class="btn btn-outline-secondary filtro-btn" data-dias="15">15 dias</button>
-      <button type="button" class="btn btn-outline-secondary filtro-btn" data-dias="30">30 dias</button>
-      <button type="button" class="btn btn-outline-secondary filtro-btn" data-dias="90">90 dias</button>
+<div class="container-fluid my-4 px-5">
+  <div class="row mb-2">
+    <div class="col-auto">
+        <div class="btn-group" role="group" aria-label="bottomVoltar">
+           <a href="{{ url_for('home_bp.render_admin') }}" class="btn btn-outline-secondary">Voltar</a>
+        </div>
     </div>
   </div>
-</div>
+  <h3 class="text-center mb-4"><span>Desempenho de</span> <span id="colaboradorNome">Colaborador</span></h3>
+
+  <div class="row justify-content-center mb-4">
+    <div class="col-auto">
+      <div class="btn-group" role="group" aria-label="Filtros de período">
+        <button type="button" class="btn btn-outline-secondary filtro-btn" data-dias="7">7 dias</button>
+        <button type="button" class="btn btn-outline-secondary filtro-btn" data-dias="15">15 dias</button>
+        <button type="button" class="btn btn-outline-secondary filtro-btn" data-dias="30">30 dias</button>
+        <button type="button" class="btn btn-outline-secondary filtro-btn" data-dias="90">90 dias</button>
+        <button type="button" class="btn btn-outline-secondary filtro-btn" data-dias="180">180 dias</button>
+      </div>
+    </div>
+  </div>
+
   <div class="row g-3">
-    <div class="col-md-3">
-      <div class="card shadow-sm">
+    <div class="col">
+      <div class="card shadow-sm h-100">
         <div class="card-body text-center">
           <h6>Chamadas Atendidas</h6>
           <p class="fs-4" id="ch_atendidas">-</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card shadow-sm">
+    <div class="col">
+      <div class="card shadow-sm h-100">
         <div class="card-body text-center">
           <h6>Chamadas Não Atendidas</h6>
           <p class="fs-4" id="ch_naoatendidas">-</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card shadow-sm">
+    <div class="col">
+      <div class="card shadow-sm h-100">
+        <div class="card-body text-center">
+          <h6>Tickets Atendidos</h6>
+          <p class="fs-4" id="total_chamados">-</p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow-sm h-100">
         <div class="card-body text-center">
           <h6>Tempo Online</h6>
           <p class="fs-4" id="tempo_online">-</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card shadow-sm">
+    <div class="col">
+      <div class="card shadow-sm h-100">
         <div class="card-body text-center">
           <h6>Tempo em Serviço</h6>
           <p class="fs-4" id="tempo_servico">-</p>
@@ -59,140 +75,60 @@
     </div>
   </div>
 
-  <div class="row g-3 mt-2">
-    <div class="col-md-5">
-      <div class="card shadow-sm">
+  <div class="row g-3 mt-4">
+    <!-- Distribuição do Tempo -->
+    <div class="col-md-3">
+      <div class="card shadow-sm card-grafico-pequeno">
         <div class="card-header text-center">Distribuição do Tempo</div>
         <div class="card-body">
           <canvas id="tempoDistribuicaoChart"></canvas>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-  <div class="card shadow-sm">
-    <div class="card-body text-center">
-      <h6>Total de Chamados</h6>
-      <p class="fs-4" id="total_chamados">-</p>
+
+    <!-- Ligações vs Tickets -->
+    <div class="col-md-5">
+      <div class="card shadow-sm card-grafico-pequeno">
+        <div class="card-header text-center">Ligações Vs Tickets</div>
+        <div class="card-body">
+          <canvas id="atendidasVsTickets" ></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLA -->
+    <div class="col-md-4">
+      <div class="card shadow-sm card-grafico-pequeno">
+        <div class="card-header text-center">SLA de Atendimento e Resolução</div>
+        <div class="card-body d-flex justify-content-center align-items-center">
+          <canvas id="slaChartAtendimentoResolucao"></canvas>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-    
+
+<!-- Modal Preto para mostrar chamados -->
+<div class="modal fade" id="modalChamadosExpirados" tabindex="-1" aria-labelledby="modalChamadosExpiradosLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="background-color: #121212; color: #f1f1f1;">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="modalChamadosExpiradosLabel">Chamados Expirados</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+        <ul id="listaChamados" style="list-style:none; padding-left: 0;"></ul>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
   </div>
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+{% include 'js/colaboradores_js.html' %}
 
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    function formatarTempo(segundos) {
-      const horas = Math.floor(segundos / 3600);
-      const minutos = Math.floor((segundos % 3600) / 60);
-      return horas > 0 ? `${horas}h ${minutos}min` : `${minutos}min`;
-    }
-
-    const colaborador = "{{ nome }}";
-    const dados = JSON.parse('{{ dados | tojson | safe }}');
-
-    document.getElementById("colaboradorNome").textContent = colaborador;
-    document.getElementById("ch_atendidas").textContent = dados.ch_atendidas || 0;
-    document.getElementById("ch_naoatendidas").textContent = dados.ch_naoatendidas || 0;
-    document.getElementById("tempo_online").textContent = formatarTempo(dados.tempo_online || 0);
-    document.getElementById("tempo_servico").textContent = formatarTempo(dados.tempo_servico || 0);
-
-    const tempoOnline = dados.tempo_online || 0;
-    const tempoLivre = dados.tempo_livre || 0;
-    const tempoServico = dados.tempo_servico || 0;
-    const tempoRefeicao = dados.pimprod_Refeicao || 0;
-    const totalTempo = tempoOnline + tempoLivre + tempoServico + tempoRefeicao;
-
-    const distribuicaoPercentual = [
-      (tempoOnline / totalTempo) * 100,
-      (tempoLivre / totalTempo) * 100,
-      (tempoServico / totalTempo) * 100,
-      (tempoRefeicao / totalTempo) * 100
-    ].map(v => +v.toFixed(2));
-
-    const ctxDistribuicao = document.getElementById("tempoDistribuicaoChart").getContext('2d');
-    new Chart(ctxDistribuicao, {
-      type: 'doughnut',
-      data: {
-        labels: ["Online", "Livre", "Serviço", "Refeição"],
-        datasets: [{
-          data: distribuicaoPercentual,
-          backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom' },
-          datalabels: {
-            color: '#fff',
-            formatter: (value) => `${value.toFixed(1)}%`,
-            font: { weight: 'bold', size: 14 }
-          }
-        }
-      },
-      plugins: [ChartDataLabels]
-    });
-
-    async function atualizarTotalChamados(dias = 1) {
-      try {
-        const response = await fetch("/operadores/ChamadosSuporte/ticketsOperador", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nome: colaborador, dias: dias })
-        });
-
-        const result = await response.json();
-        if (result.status === "success") {
-          document.getElementById("total_chamados").textContent = result.total_chamados;
-        } else {
-          document.getElementById("total_chamados").textContent = "0";
-          console.error("Erro:", result.message);
-        }
-      } catch (error) {
-        console.error("Erro ao buscar total de chamados:", error);
-        document.getElementById("total_chamados").textContent = "Erro";
-      }
-    }
-
-    document.querySelectorAll(".filtro-btn").forEach(button => {
-      button.addEventListener("click", async () => {
-        const dias = button.getAttribute("data-dias");
-
-        // Destacar botão ativo
-        document.querySelectorAll(".filtro-btn").forEach(btn => btn.classList.remove("active"));
-        button.classList.add("active");
-
-        // Atualizar total de chamados ANTES do redirecionamento
-        await atualizarTotalChamados(dias);
-
-        try {
-          const response = await fetch("/operadores/performanceColaboradores", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nome: colaborador, dias: dias })
-          });
-
-          const result = await response.json();
-          if (result.redirect_url) {
-            window.location.href = result.redirect_url;
-          } else {
-            alert(result.message || "Erro ao buscar dados.");
-          }
-        } catch (error) {
-          console.error("Erro ao buscar dados de performance:", error);
-        }
-      });
-    });
-
-    // Primeira renderização
-    atualizarTotalChamados(1);
-  });
-</script>
 
 
 </body>

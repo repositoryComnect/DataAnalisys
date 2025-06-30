@@ -1,0 +1,182 @@
+<!-- Script para atualizar chamados abertos por período -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const botaoPeriodo = document.querySelectorAll(".filtro-btn");
+    const campoTotalChamados = document.getElementById("chamados-abertos");
+
+    async function carregarChamados(dias = 1) {
+        try {
+            const response = await fetch('/insights/ChamadosSuporte', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ dias: dias })
+            });
+
+            const data = await response.json();
+
+            if (data.status === "success") {
+                campoTotalChamados.textContent = data.total_chamados;
+            } else {
+                campoTotalChamados.textContent = "Erro ao carregar";
+                console.error(data.message);
+            }
+        } catch (error) {
+            campoTotalChamados.textContent = "Erro de conexão";
+            console.error(error);
+        }
+    }
+
+    // Evento de clique nos botões de período
+    botaoPeriodo.forEach(button => {
+        button.addEventListener("click", function () {
+            // Atualiza classe ativa nos botões
+            botaoPeriodo.forEach(btn => btn.classList.remove("active"));
+            this.classList.add("active");
+
+            const dias = parseInt(this.getAttribute("data-dias"), 10);
+            carregarChamados(dias);
+        });
+    });
+
+    // Carregamento inicial (padrão 7 dias)
+    carregarChamados(1);
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    function carregarChamadosFinalizados(dias = 7) {
+        fetch('/insights/ChamadosSuporte/finalizado', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dias: dias })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                document.getElementById("chamados-finalizados").textContent = data.total_chamados;
+            } else {
+                document.getElementById("chamados-finalizados").textContent = "Erro ao carregar";
+            }
+        })
+        .catch(error => {
+            console.error("Erro:", error);
+            document.getElementById("chamados-finalizados").textContent = "Erro de conexão";
+        });
+    }
+
+    // Adiciona o comportamento aos botões de período
+    document.querySelectorAll(".filtro-btn").forEach(button => {
+        button.addEventListener("click", () => {
+            const dias = parseInt(button.getAttribute("data-dias"), 10);
+            carregarChamadosFinalizados(dias);
+        });
+    });
+
+    // Carregamento inicial com 7 dias
+    carregarChamadosFinalizados(1);
+});
+</script>
+
+
+<!-- Atualização dinâmica dos chamados em aberto -->
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/insights/ChamadosEmAbertoSuporte', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("ChamadosEmAbertoSuporte").textContent = data.total_chamados;
+                } else {
+                    document.getElementById("ChamadosEmAbertoSuporte").textContent = "Erro ao carregar";
+                }
+            })
+            .catch(error => {
+                document.getElementById("ChamadosEmAbertoSuporte").textContent = "Erro de conexão";
+            });
+        });
+</script>
+
+
+
+<script>
+  let codigosAtendimento = [];
+  let codigosResolucao = [];
+
+  function mostrarCodigos(titulo, listaCodigos) {
+    const lista = document.getElementById("listaCodigos");
+    const tituloModal = document.getElementById("tituloModalCodigos");
+
+    lista.innerHTML = "";
+    tituloModal.textContent = titulo;
+
+    if (listaCodigos.length === 0) {
+      const item = document.createElement("li");
+      item.className = "text-muted";
+      item.textContent = "Nenhum chamado encontrado.";
+      lista.appendChild(item);
+    } else {
+      listaCodigos.forEach(codigo => {
+        const li = document.createElement("li");
+        li.style.marginBottom = "8px";
+
+        const link = document.createElement("a");
+        link.href = `https://comnect.desk.ms/?Ticket#ChamadosSuporte:${codigo}`;
+        link.target = "_blank";
+        link.textContent = codigo;
+        link.style.color = "#ffc107";  // cor amarela
+
+        li.appendChild(link);
+        lista.appendChild(li);
+      });
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById("modalCodigos"));
+    modal.show();
+  }
+
+  function carregarSlaGlobal(dias = 1) {
+    fetch('/insights/sla', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dias: dias })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === "success") {
+          document.getElementById("sla-atendimento-expirado").textContent = data.percentual_atendimento + "%";
+          document.getElementById("sla-atendimento-prazo").textContent = data.percentual_prazo_atendimento + "%";
+          document.getElementById("sla-resolucao-expirado").textContent = data.percentual_resolucao + "%";
+          document.getElementById("percentual_prazo_resolucao").textContent = data.percentual_prazo_resolucao + "%";
+
+          codigosAtendimento = data.codigos_atendimento || [];
+          codigosResolucao = data.codigos_resolucao || [];
+        } else {
+          document.getElementById("sla-atendimento-expirado").textContent = "Erro";
+          document.getElementById("sla-resolucao-expirado").textContent = "Erro";
+        }
+      })
+      .catch(() => {
+        document.getElementById("sla-atendimento-expirado").textContent = "Erro";
+        document.getElementById("sla-resolucao-expirado").textContent = "Erro";
+      });
+  }
+
+  // Executa ao carregar
+  document.addEventListener("DOMContentLoaded", function () {
+    carregarSlaGlobal(1);
+  });
+
+  // Filtros de período
+  document.querySelectorAll(".filtro-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      const dias = parseInt(button.getAttribute("data-dias"), 10);
+      carregarSlaGlobal(dias);
+    });
+  });
+</script>
+
