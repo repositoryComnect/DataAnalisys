@@ -15,81 +15,16 @@ import random
 
 admin_bp = Blueprint('admin_bp', __name__, url_prefix='/admin')
 
-'''@admin_bp.route('/abertos_vs_admin_resolvido_mes', methods=['POST'])
-def relacao_admin_abertos_vs_resolvido():
-    try:
-        hoje = datetime.now()
-        ano = hoje.year
-        mes = hoje.month
-
-        # Corrige o range de dias válidos no mês
-        _, ultimo_dia = calendar.monthrange(ano, mes)
-        dias_do_mes = list(range(1, ultimo_dia + 1))
-
-        total_por_dia = {dia: 0 for dia in dias_do_mes}
-        resolvidos_por_dia = {dia: 0 for dia in dias_do_mes}
-
-        # Abertos
-        resultados_abertos = db.session.query(
-            extract('day', Chamado.data_criacao).label('dia'),
-            func.count(Chamado.id)
-        ).filter(
-            extract('year', Chamado.data_criacao) == ano,
-            extract('month', Chamado.data_criacao) == mes
-        ).group_by('dia').all()
-
-        for dia, total in resultados_abertos:
-            total_por_dia[int(dia)] = total
-
-        # Resolvidos
-        resultados_resolvidos = db.session.query(
-            extract('day', Chamado.data_criacao).label('dia'),
-            func.count(Chamado.id)
-        ).filter(
-            extract('year', Chamado.data_criacao) == ano,
-            extract('month', Chamado.data_criacao) == mes,
-            Chamado.nome_status == 'Resolvido'  # ajuste se for "Finalizado"
-        ).group_by('dia').all()
-
-        for dia, total in resultados_resolvidos:
-            resolvidos_por_dia[int(dia)] = total
-
-        return jsonify({
-            'status': 'success',
-            'labels': [str(d) for d in dias_do_mes],
-            'datasets': [
-                {
-                    'label': 'Total de Chamados Abertos',
-                    'data': [total_por_dia[d] for d in dias_do_mes],
-                    'borderColor': 'rgba(255, 99, 132, 0.7)',
-                    'fill': False
-                },
-                {
-                    'label': 'Chamados Resolvidos',
-                    'data': [resolvidos_por_dia[d] for d in dias_do_mes],
-                    'borderColor': 'rgba(75, 192, 75, 0.7)',
-                    'fill': False
-                }
-            ],
-            'mes_referencia': f"{mes:02d}/{ano}"
-        })
-
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500'''
-
-# Bloco Abertos Vs Resolvidos períodos de 7, 15 e 30 dias
 @admin_bp.route('/abertos_vs_admin_resolvido_periodo', methods=['POST'])
 def relacao_admin_abertos_vs_resolvido_periodo():
     try:
         dados = request.get_json(force=True)
-        dias = int(dados.get("dias", 7))  # padrão: 7 dias
+        dias = int(dados.get("dias", 7))
         data_limite = datetime.now() - timedelta(days=dias)
 
-        # Inicializa os contadores por dia
         total_por_dia = {}
         resolvidos_por_dia = {}
 
-        # Consulta chamados abertos no período
         resultados_abertos = db.session.query(
             func.date(Chamado.data_criacao).label('dia'),
             func.count(Chamado.id)
@@ -98,26 +33,26 @@ def relacao_admin_abertos_vs_resolvido_periodo():
         ).group_by('dia').all()
 
         for dia, total in resultados_abertos:
-            total_por_dia[dia.strftime('%d/%m')] = total
+            total_por_dia[dia] = total  # salva como datetime.date
 
-        # Consulta chamados resolvidos no período
         resultados_resolvidos = db.session.query(
             func.date(Chamado.data_criacao).label('dia'),
             func.count(Chamado.id)
         ).filter(
             Chamado.data_criacao >= data_limite,
-            Chamado.nome_status == 'Resolvido'  # ajuste se necessário
+            Chamado.nome_status == 'Resolvido'
         ).group_by('dia').all()
 
         for dia, total in resultados_resolvidos:
-            resolvidos_por_dia[dia.strftime('%d/%m')] = total
+            resolvidos_por_dia[dia] = total  # salva como datetime.date
 
-        # União de datas
+        # União ordenada de datas (datetime.date)
         todos_os_dias = sorted(set(total_por_dia.keys()).union(resolvidos_por_dia.keys()))
 
+        # Retorno com datas formatadas
         return jsonify({
             'status': 'success',
-            'labels': todos_os_dias,
+            'labels': [dia.strftime('%d/%m') for dia in todos_os_dias],
             'datasets': [
                 {
                     'label': 'Total de Chamados Abertos',
@@ -136,52 +71,6 @@ def relacao_admin_abertos_vs_resolvido_periodo():
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
-
-'''@admin_bp.route('/ChamadosSuporte/estatisticas_mensais_admin', methods=['GET'])
-def estatisticas_chamados():
-    try:
-        # Obter parâmetros com valores padrão
-        ano = request.args.get('ano', default=datetime.now().year, type=int)
-        mes = request.args.get('mes', default=datetime.now().month, type=int)
-        
-        # Consulta otimizada ao banco de dados
-        resultados = db.session.query(
-            Chamado.nome_status,
-            func.count(Chamado.id).label('total')
-        ).filter(
-            extract('year', Chamado.data_criacao) == ano,
-            extract('month', Chamado.data_criacao) == mes,
-            Chamado.nome_status != 'cancelado'  # Adicionei este filtro para excluir cancelados
-        ).group_by(
-            Chamado.nome_status
-        ).all()
-
-        # Formatar resposta para o gráfico
-        labels = [r[0] for r in resultados]
-        dados = [r[1] for r in resultados]
-        
-        return jsonify({
-            "status": "success",
-            "data": {
-                "labels": labels,
-                "datasets": [{
-                    "data": dados,
-                    "backgroundColor": [
-                        '#FF6384', '#36A2EB', '#FFCE56',
-                        '#4BC0C0', '#9966FF', '#FF9F40'
-                    ]
-                }],
-                "total": sum(dados)
-            },
-            "mes_referencia": f"{mes}/{ano}"
-        })
-
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e),
-        }), 500'''
 
 @admin_bp.route('/v2/report/attendants_performance', methods=['POST'])
 def importar_ligacoes_atendidas():
@@ -297,7 +186,9 @@ def get_operadores():
             Chamado.operador != 'Caio',
             Chamado.operador != 'Paulo',
             Chamado.operador != 'Luciano',
-            Chamado.nome_grupo == 'SUPORTE B2B - COMNECT'
+            Chamado.operador != 'Chrysthyanne',
+            Chamado.operador != 'Suporte',
+            Chamado.nome_grupo == 'SUPORTE COMNEcT - N1'
         ).distinct().order_by(
             Chamado.operador
         ).all()
@@ -317,176 +208,9 @@ def get_operadores():
             "message": str(e)
         }), 500
 
-# Rota traz os chamados abertos atualmente
-@admin_bp.route('/ChamadosSuporte', methods=['POST'])
-def listar_chamados_aberto():
-    token_response = token_desk()
-    
-    try:
-        # Faz a requisição para a API de chamados
-        response = requests.post(
-            'https://api.desk.ms/ChamadosSuporte/lista',
-            headers={
-                'Authorization': f'{token_response}',
-                'Content-Type': 'application/json'
-            },
-            json={
-                "Pesquisa":"", 	#Pesquisa por Assunto,Código,Descrição,Solicitante,Status,Operador ou Dados do Cliente
-            "Tatual":"", 	#Opcional para uso com mais de 3000 registros, define a partir de qual registro exibir
-            "Ativo":"EmAberto",	#Pode usar um texto pré definido ou o código do Status*
-            "StatusSLA":"S", #S: Apenas com SLA, A: Apenas sem SLA, N: Com e Sem SLA (todos)
-            "Colunas": 	#Colunas a serem exibidas, Caso não seja enviado trará todas
-            {
-                "Chave":"on",		#Chave do chamado
-                "CodChamado":"on",	#Código de referência do chamado (mmaa-000000)
-                "NomePrioridade":"on",	#Prioridade do chamado
-                "DataCriacao":"on",	#Data da criação
-                "HoraCriacao":"on",	#Hora da criação
-                "DataFinalizacao":"on",	#Data da finalização
-                "HoraFinalizacao":"on", #Hora da finalização
-                "DataAlteracao":"on", 	#Data da Ultima Alteração
-                "HoraAlteracao":"on", 	#Hora da Ultima Alteração
-                "NomeStatus":"on",	#Nome do Status atual do chamado
-                "Assunto":"on",	
-                "Descricao":"on",
-                "ChaveUsuario":"on",	#Código do Solicitante	
-                "NomeUsuario":"on",		#Primeiro nome do Solicitante
-                "SobrenomeUsuario":"on",	#Sobrenome do Solicitante
-                "NomeCompletoSolicitante":"on", #Nome Completo do Solicitante
-                "SolicitanteEmail":"on",	#Email do Solicitante
-                "NomeOperador":"on",		#Primeiro nome do Operador
-                "SobrenomeOperador":"on",	#Sobrenome do Operador
-                "TotalAcoes":"on",		#Quantidade de ações realizadas no chamado
-                "TotalAnexos":"on",
-                "Sla":"on",			#Exibe as informações sobre o SLA (várias colunas serão exibidas)
-                "CodGrupo":"on",		#Código do grupo de atendimento do chamado
-                "NomeGrupo":"on",		#Nome do grupo de atendimento do chamado
-                "CodSolicitacao":"on", 		#Código de Solicitação
-                "CodSubCategoria":"on", 	#Código de Sub Categoria
-                "CodTipoOcorrencia":"on", 	#Código do Tipo de Ocorrência
-                "CodCategoriaTipo":"on", 	#Código do Tipo de Categoria
-                "CodPrioridadeAtual":"on", 	#Código da Prioridade
-                "CodStatusAtual":"on"	#Código do Status Atual
-            },
-            "Ordem": [	#Colunas para ordenação
-                {
-                "Coluna": "Chave",
-                "Direcao": "true"	#true:ASC e false:DESC	
-                }
-            ]
-            }
-            )
-        
-        # Verifica se a requisição foi bem sucedida
-        if response.status_code == 200:
-            data = response.json()
-            
-            # Captura apenas o total do retorno
-            total_chamados = data.get("total", "0")
-            
-            return jsonify({
-                "status": "success",
-                "total_chamados": total_chamados
-            })
-        else:
-            return jsonify({
-                "status": "error",
-                "message": "Erro na requisição",
-                "status_code": response.status_code
-            }), response.status_code
-            
-    except requests.exceptions.RequestException as e:
-        return jsonify({
-            "status": "error",
-            "message": "Erro ao conectar com o servidor",
-            "details": str(e)
-        }), 500
 
-# Rota traz os chamados finalizados 
-@admin_bp.route('/ChamadosSuporte/finalizado', methods=['POST'])
-def listar_chamados_finalizado():
-    token_response = token_desk()
-    data = datetime.now()
-    
-    try:
-        # Faz a requisição para a API de chamados
-        response = requests.post(
-            'https://api.desk.ms/ChamadosSuporte/lista',
-            headers={
-                'Authorization': f'{token_response}',
-                'Content-Type': 'application/json'
-            },
-            json={
-                "Pesquisa":"", 	#Pesquisa por Assunto,Código,Descrição,Solicitante,Status,Operador ou Dados do Cliente
-            "Tatual":"", 	#Opcional para uso com mais de 3000 registros, define a partir de qual registro exibir
-            "Ativo":"000002",	#Pode usar um texto pré definido ou o código do Status*
-            "StatusSLA":"S", #S: Apenas com SLA, A: Apenas sem SLA, N: Com e Sem SLA (todos)
-            "Colunas": 	#Colunas a serem exibidas, Caso não seja enviado trará todas
-            {
-                "Chave":"on",		#Chave do chamado
-                "CodChamado":"on",	#Código de referência do chamado (mmaa-000000)
-                "NomePrioridade":"on",	#Prioridade do chamado
-                "DataCriacao":"on",	#Data da criação
-                "HoraCriacao":"on",	#Hora da criação
-                "DataFinalizacao":"on",	#Data da finalização
-                "HoraFinalizacao":"on", #Hora da finalização
-                "DataAlteracao":"on", 	#Data da Ultima Alteração
-                "HoraAlteracao":"on", 	#Hora da Ultima Alteração
-                "NomeStatus":"on",	#Nome do Status atual do chamado
-                "Assunto":"on",	
-                "Descricao":"on",
-                "ChaveUsuario":"on",	#Código do Solicitante	
-                "NomeUsuario":"on",		#Primeiro nome do Solicitante
-                "SobrenomeUsuario":"on",	#Sobrenome do Solicitante
-                "NomeCompletoSolicitante":"on", #Nome Completo do Solicitante
-                "SolicitanteEmail":"on",	#Email do Solicitante
-                "NomeOperador":"on",		#Primeiro nome do Operador
-                "SobrenomeOperador":"on",	#Sobrenome do Operador
-                "TotalAcoes":"on",		#Quantidade de ações realizadas no chamado
-                "TotalAnexos":"on",
-                "Sla":"on",			#Exibe as informações sobre o SLA (várias colunas serão exibidas)
-                "CodGrupo":"on",		#Código do grupo de atendimento do chamado
-                "NomeGrupo":"on",		#Nome do grupo de atendimento do chamado
-                "CodSolicitacao":"on", 		#Código de Solicitação
-                "CodSubCategoria":"on", 	#Código de Sub Categoria
-                "CodTipoOcorrencia":"on", 	#Código do Tipo de Ocorrência
-                "CodCategoriaTipo":"on", 	#Código do Tipo de Categoria
-                "CodPrioridadeAtual":"on", 	#Código da Prioridade
-                "CodStatusAtual":"on"	#Código do Status Atual
-            },
-            "Ordem": [	#Colunas para ordenação
-                {
-                "Coluna": "Chave",
-                "Direcao": "true"	#true:ASC e false:DESC	
-                }
-            ]
-            }
-            )
-        
-        # Verifica se a requisição foi bem sucedida
-        if response.status_code == 200:
-            data = response.json()
-            
-            # Captura apenas o total do retorno
-            total_chamados = data.get("total", "0")
-            
-            return jsonify({
-                "status": "success",
-                "total_chamados": total_chamados
-            })
-        else:
-            return jsonify({
-                "status": "error",
-                "message": "Erro na requisição",
-                "status_code": response.status_code
-            }), response.status_code
-            
-    except requests.exceptions.RequestException as e:
-        return jsonify({
-            "status": "error",
-            "message": "Erro ao conectar com o servidor",
-            "details": str(e)
-        }), 500
+
+
 
 # Rota que traz total de chamados abertos no período de uma semana
 @admin_bp.route('/ChamadosSuporteSemanal', methods=['POST'])

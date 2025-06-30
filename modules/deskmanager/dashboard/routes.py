@@ -12,8 +12,6 @@ from sqlalchemy import extract, func
 dashboard_bp = Blueprint('dashboard_bp', __name__, url_prefix='/dashboard')
 
 
-
-
 @dashboard_bp.route('/ChamadosSuporte/fila', methods=['POST'])
 def listar_chamados_fila():
     token_response = token_desk()
@@ -95,7 +93,7 @@ def listar_chamados_fila():
             "details": str(e)
         }), 500
 
-@dashboard_bp.route('/ChamadosSuporte/sla_andamento', methods=['POST'])
+'''@dashboard_bp.route('/ChamadosSuporte/sla_andamento', methods=['POST'])
 def listar_sla_andamento():
     token_response = token_desk()
     url = endpoints.LISTA_CHAMADOS_SUPORTE
@@ -158,43 +156,39 @@ def listar_sla_andamento():
         if response.status_code == 200:
             data = response.json()
             chamados = data.get("root", [])
-            
-            # Filtra apenas chamados do grupo de Suporte (considerando diferentes nomes)
+
             chamados_suporte = [
                 c for c in chamados 
-                if "SUPORTE" in c.get("NomeGrupo", "").upper()
+                if c.get("NomeGrupo", "").strip().upper() == "SUPORTE COMNECT - N1"
+
             ]
 
-            # Verifica se estamos no início do mês para evitar retornar zero
             hoje = datetime.now()
-            primeiro_dia_mes = hoje.replace(day=1)
-            if hoje.day == 1:
-                # Se for o primeiro dia do mês, busca também os últimos dias do mês anterior
-                ultimo_dia_mes_anterior = primeiro_dia_mes - timedelta(days=1)
-                primeiro_dia_mes_anterior = ultimo_dia_mes_anterior.replace(day=1)
-                
-                # Aqui você precisaria fazer uma nova consulta para o período anterior
-                # ou ajustar sua lógica conforme sua API permite
 
             sla1_expirado = 0
             sla1_nao_expirado = 0
             sla2_expirado = 0
             sla2_nao_expirado = 0
 
+            codigos_sla1 = []
+            codigos_sla2 = []
+
             for chamado in chamados_suporte:
-                # Verifica se o chamado é do mês atual
                 data_criacao = chamado.get("DataCriacao")
                 if data_criacao and datetime.strptime(data_criacao, "%Y-%m-%d").month == hoje.month:
                     sla1 = chamado.get("Sla1Expirado", "").upper()
                     sla2 = chamado.get("Sla2Expirado", "").upper()
+                    cod_chamado = chamado.get("CodChamado")
 
                     if sla1 == "S":
                         sla1_expirado += 1
+                        codigos_sla1.append(cod_chamado)
                     elif sla1 == "N":
                         sla1_nao_expirado += 1
 
                     if sla2 == "S":
                         sla2_expirado += 1
+                        codigos_sla2.append(cod_chamado)
                     elif sla2 == "N":
                         sla2_nao_expirado += 1
 
@@ -205,6 +199,8 @@ def listar_sla_andamento():
                 "sla2_expirado": sla2_expirado,
                 "sla2_nao_expirado": sla2_nao_expirado,
                 "total": len(chamados_suporte),
+                "codigos_sla1": codigos_sla1,
+                "codigos_sla2": codigos_sla2,
                 "grupo_filtrado": "SUPORTE",
                 "mes_referencia": hoje.strftime("%Y-%m")
             })
@@ -220,300 +216,69 @@ def listar_sla_andamento():
             "status": "error",
             "message": "Erro ao conectar com o servidor",
             "details": str(e)
-        }), 500
-
-# Exemplo com implementação de verificação de chamado filho e pai 
-'''from concurrent.futures import ThreadPoolExecutor, as_completed
-from modules.deskmanager.dashboard.utils import token_desk, verificarFilho
-import traceback
-
-@dashboard_bp.route('/ChamadosSuporte/contagem_mes_atual', methods=['POST'])
-def contar_chamados_mes_atual():
-    try:
-        token_response = token_desk()
-        if not token_response:
-            return jsonify({"status": "error", "message": "Falha na autenticação"}), 401
-
-        hoje = datetime.now()
-
-        payload = {
-            "Pesquisa": "",
-            "Tatual": "",
-            "Ativo": "",
-            "StatusSLA": "S",
-            "Colunas": {
-                "Chave": "on",
-                "CodChamado": "on",
-                "NomePrioridade": "on",
-                "DataCriacao": "on",
-                "HoraCriacao": "on",
-                "DataFinalizacao": "on",
-                "HoraFinalizacao": "on",
-                "DataAlteracao": "on",
-                "HoraAlteracao": "on",
-                "NomeStatus": "on",
-                "Assunto": "on",
-                "Descricao": "on",
-                "ChaveUsuario": "on",
-                "NomeUsuario": "on",
-                "SobrenomeUsuario": "on",
-                "NomeCompletoSolicitante": "on",
-                "SolicitanteEmail": "on",
-                "NomeOperador": "on",
-                "SobrenomeOperador": "on",
-                "TotalAcoes": "on",
-                "TotalAnexos": "on",
-                "Sla": "on",
-                "CodGrupo": "on",
-                "NomeGrupo": "on",
-                "CodSolicitacao": "on",
-                "CodSubCategoria": "on",
-                "CodTipoOcorrencia": "on",
-                "CodCategoriaTipo": "on",
-                "CodPrioridadeAtual": "on",
-                "CodStatusAtual": "on"
-            },
-            "Ordem": [{"Coluna": "Chave", "Direcao": "false"}]
-        }
-
-        response = requests.post(
-            'https://api.desk.ms/ChamadosSuporte/lista',
-            headers={'Authorization': f'{token_response}', 'Content-Type': 'application/json'},
-            json=payload,
-        )
-        response.raise_for_status()
-        chamados_api = response.json().get("root", [])
-
-        def data_valida(data_str):
-            return data_str and data_str != '0000-00-00'
-
-        # Função paralela para obter vínculo
-        def obter_tipo_vinculo(chave):
-            try:
-                vinculo_data = verificarFilho(chave)
-                if vinculo_data:
-                    if vinculo_data.get("TChamadoFilho"):
-                        return chave, 'pai'
-                    elif vinculo_data.get("TChamadoPai"):
-                        return chave, 'filho'
-                return chave, None
-            except Exception as e:
-                print(f"[!] Erro ao verificar vínculo do chamado {chave}: {e}")
-                return chave, None
-
-        # Processar vínculos em paralelo
-        chaves = [chamado.get('Chave') for chamado in chamados_api]
-        vinculos = {}
-
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = {executor.submit(obter_tipo_vinculo, chave): chave for chave in chaves}
-            for future in as_completed(futures):
-                chave, tipo = future.result()
-                vinculos[chave] = tipo
-
-        with db.session.begin():
-            db.session.query(Chamado).delete()
-
-            for chamado in chamados_api:
-                try:
-                    chave = chamado.get('Chave')
-                    data_str = chamado.get('DataCriacao')
-                    hora_str = chamado.get('HoraCriacao')
-                    data_finali = chamado.get('DataFinalizacao')
-                    hora_finali = chamado.get('HoraFinalizacao')
-
-                    if not data_valida(data_str):
-                        continue
-
-                    # Montar data de criação
-                    try:
-                        data_criacao = datetime.strptime(f"{data_str} {hora_str}", '%Y-%m-%d %H:%M:%S')
-                    except ValueError:
-                        data_criacao = datetime.strptime(f"{data_str} {hora_str}", '%Y-%m-%d %H:%M')
-
-                    # Montar data de finalização
-                    data_finalizacao = None
-                    if data_valida(data_finali):
-                        try:
-                            data_finalizacao = datetime.strptime(f"{data_finali} {hora_finali}", '%Y-%m-%d %H:%M:%S')
-                        except ValueError:
-                            data_finalizacao = datetime.strptime(f"{data_finali} {hora_finali}", '%Y-%m-%d %H:%M')
-
-                    novo_chamado = Chamado(
-                        chave=chave,
-                        cod_chamado=chamado.get('CodChamado'),
-                        data_criacao=data_criacao,
-                        nome_status=chamado.get('NomeStatus'),
-                        nome_grupo=chamado.get('NomeGrupo'),
-                        cod_solicitacao=chamado.get('CodSolicitacao'),
-                        operador=chamado.get('NomeOperador'),
-                        data_finalizacao=data_finalizacao,
-                        mes_referencia=f"{data_criacao.year}-{data_criacao.month:02d}",
-                        data_importacao=datetime.now(),
-                        tipo_vinculo=vinculos.get(chave)
-                    )
-
-                    db.session.add(novo_chamado)
-
-                except Exception as e:
-                    print(f"[!] Erro ao processar chamado {chamado.get('CodChamado')}: {e}")
-                    traceback.print_exc()
-                    continue
-
-        total_mes_atual = Chamado.query.filter(
-            db.extract('month', Chamado.data_criacao) == hoje.month,
-            db.extract('year', Chamado.data_criacao) == hoje.year
-        ).count()
-
-        total_abertos = Chamado.query.filter(
-            db.extract('month', Chamado.data_criacao) == hoje.month,
-            db.extract('year', Chamado.data_criacao) == hoje.year,
-            ~Chamado.nome_status.in_(["Resolvido", "Cancelado"])
-        ).count()
-
-        total_finalizados = Chamado.query.filter(
-            db.extract('month', Chamado.data_criacao) == hoje.month,
-            db.extract('year', Chamado.data_criacao) == hoje.year,
-            Chamado.nome_status.in_(["Resolvido", "Cancelado"]),
-            Chamado.data_finalizacao != None
-        ).count()
-
-        return jsonify({
-            "status": "success",
-            "total_mes_atual": total_mes_atual,
-            "total_abertos": total_abertos,
-            "total_finalizados": total_finalizados,
-            "mes_referencia": f"{hoje.month}/{hoje.year}",
-            "registros_processados": len(chamados_api)
-        })
-
-    except requests.exceptions.RequestException as e:
-        db.session.rollback()
-        print(f"[ERROR] Erro na comunicação com a API Desk: {e}")
-        traceback.print_exc()
-        return jsonify({
-            "status": "error",
-            "message": "Erro na comunicação com a API Desk",
-            "details": str(e)
-        }), 500
-
-    except Exception as e:
-        db.session.rollback()
-        print(f"[ERROR] Erro inesperado: {e}")
-        traceback.print_exc()
-        return jsonify({
-            "status": "error",
-            "message": "Erro inesperado",
-            "details": str(e)
         }), 500'''
 
-'''@dashboard_bp.route('/ChamadosSuporte/contagem_mes_atual', methods=['POST'])
-def contar_chamados_mes_atual():
-    token_response = token_desk()
-
-    payload = {
-    "Pesquisa": "",
-    "Tatual": "",
-    "Ativo": "Todos",          # Pode ser: Todos, EmAberto, Favoritos, Compartilhados, etc.
-    "StatusSLA": "S",          # S: Apenas com SLA, A: Apenas sem SLA, N: Todos
-    "Colunas": {
-        "Chave": "on",
-        "CodChamado": "on",
-        "NomePrioridade": "on",
-        "DataCriacao": "on",
-        "HoraCriacao": "on",
-        "DataFinalizacao": "on",
-        "HoraFinalizacao": "on",
-        "DataAlteracao": "on",
-        "HoraAlteracao": "on",
-        "NomeStatus": "on",
-        "Assunto": "on",
-        "Descricao": "on",
-        "ChaveUsuario": "on",
-        "NomeUsuario": "on",
-        "SobrenomeUsuario": "on",
-        "NomeCompletoSolicitante": "on",
-        "SolicitanteEmail": "on",
-        "NomeOperador": "on",
-        "SobrenomeOperador": "on",
-        "TotalAcoes": "on",
-        "TotalAnexos": "on",
-        "Sla": "on",
-        "CodGrupo": "on",
-        "NomeGrupo": "on",
-        "CodSolicitacao": "on",
-        "CodSubCategoria": "on",
-        "CodTipoOcorrencia": "on",
-        "CodCategoriaTipo": "on",
-        "CodPrioridadeAtual": "on",
-        "CodStatusAtual": "on",
-        # Adicione abaixo campos extras personalizados, se houver. Exemplo:
-        # "_6313": "on"
-    },
-    "Ordem": [
-        {
-            "Coluna": "Chave",
-            "Direcao": "true"  # true para ASC, false para DESC
-        }
-    ]
-}
-
-
-    # 3. Requisição para a API
+@dashboard_bp.route('/ChamadosSuporte/sla_andamento', methods=['POST'])
+def listar_sla_andamento():
     try:
-        response = requests.post(
-            'https://api.desk.ms/ChamadosSuporte/lista',
-            headers={
-                'Authorization': f'{token_response}',
-                'Content-Type': 'application/json'
-            },
-            json=payload,
-            timeout=30  # Timeout em segundos
-        )
+        hoje = datetime.now()
 
-        response.raise_for_status()  # Lança exceção para status 4xx/5xx
+        # Filtra chamados do mês atual, em andamento (status != Resolvido ou Cancelado)
+        chamados = Chamado.query.filter(
+            db.extract('month', Chamado.data_criacao) == hoje.month,
+            db.extract('year', Chamado.data_criacao) == hoje.year,
+            Chamado.nome_grupo.ilike('%SUPORTE%'),
+            ~Chamado.nome_status.in_(["Resolvido", "Cancelado"])
+        ).all()
 
-        # 4. Processamento dos dados
-        chamados = response.json().get("root", [])
-        hoje = datetime(2025, 5, 1)
-        total = sum(
-            1 for chamado in chamados
-            if _is_chamado_mes_atual(chamado, hoje)
-        )
+        sla1_expirado = 0
+        sla1_nao_expirado = 0
+        sla2_expirado = 0
+        sla2_nao_expirado = 0
+
+        codigos_sla1 = []
+        codigos_sla2 = []
+
+        for chamado in chamados:
+            sla1 = (chamado.sla_atendimento or "").strip().upper()
+            sla2 = (chamado.sla_resolucao or "").strip().upper()
+            cod = chamado.cod_chamado
+
+            if sla1 == "S":
+                sla1_expirado += 1
+                codigos_sla1.append(cod)
+            elif sla1 == "N":
+                sla1_nao_expirado += 1
+
+            if sla2 == "S":
+                sla2_expirado += 1
+                codigos_sla2.append(cod)
+            elif sla2 == "N":
+                sla2_nao_expirado += 1
 
         return jsonify({
             "status": "success",
-            "total_mes_atual": total,
-            "mes_referencia": f"{hoje.month}/{hoje.year}"
+            "sla1_expirado": sla1_expirado,
+            "sla1_nao_expirado": sla1_nao_expirado,
+            "sla2_expirado": sla2_expirado,
+            "sla2_nao_expirado": sla2_nao_expirado,
+            "total": len(chamados),
+            "codigos_sla1": codigos_sla1,
+            "codigos_sla2": codigos_sla2,
+            "grupo_filtrado": "SUPORTE",
+            "mes_referencia": hoje.strftime("%Y-%m")
         })
 
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         return jsonify({
             "status": "error",
-            "message": "Erro na comunicação com a API Desk",
+            "message": "Erro ao consultar os dados",
             "details": str(e)
         }), 500
 
-def _is_chamado_mes_atual(chamado: dict, data_referencia: datetime) -> bool:
-    """Verifica se o chamado foi finalizado no mês/ano de referência."""
-    #if chamado.get('NomeStatus') != "Resolvido":
-    #    return False
-        
-    data_str = chamado.get('DataFinalizacao')
-    if not data_str:
-        return False
-
-    try:
-        data_fim = datetime.strptime(data_str.split(' ')[0], '%Y-%m-%d')
-        return (
-            data_fim.month == data_referencia.month 
-            and data_fim.year == data_referencia.year
-        )
-    except (ValueError, IndexError):
-        return False'''
 
 # Rota oficial funcional
-@dashboard_bp.route('/ChamadosSuporte/contagem_mes_atual', methods=['POST'])
+'''@dashboard_bp.route('/ChamadosSuporte/contagem_mes_atual', methods=['POST'])
 def contar_chamados_mes_atual():
     try:
         token_response = token_desk()
@@ -525,7 +290,7 @@ def contar_chamados_mes_atual():
         payload = {
             "Pesquisa": "",
             "Tatual": "",
-            "Ativo": "",
+            "Ativo": "Todos",
             "StatusSLA": "S",
             "Colunas": {
                 "Chave": "on",
@@ -625,6 +390,9 @@ def contar_chamados_mes_atual():
                         nome_grupo=chamado.get('NomeGrupo'),
                         cod_solicitacao=chamado.get('CodSolicitacao'),
                         operador=chamado.get('NomeOperador'),
+                        sla_atendimento = chamado.get('Sla1Expirado'),
+                        sla_resolucao = chamado.get('Sla2Expirado'),
+                        cod_categoria_tipo = chamado.get('CodCategoriaTipo'),
                         data_finalizacao=data_finalizacao,
                         mes_referencia=f"{data_criacao.year}-{data_criacao.month:02d}",
                         data_importacao=datetime.now()
@@ -675,61 +443,6 @@ def contar_chamados_mes_atual():
         return jsonify({
             "status": "error",
             "message": "Erro inesperado",
-            "details": str(e)
-        }), 500
-
-'''@dashboard_bp.route('/ChamadosSuporte/dashboard_unificado', methods=['GET'])
-def dashboard_unificado():
-    try:
-        hoje = datetime.now()
-        ano = request.args.get('ano', default=hoje.year, type=int)
-        mes = request.args.get('mes', default=hoje.month, type=int)
-
-        # Dados por status (primeira rota)
-        status_data = db.session.query(
-            Chamado.nome_status,
-            func.count(Chamado.id).label('total')
-        ).filter(
-            extract('year', Chamado.data_criacao) == ano,
-            extract('month', Chamado.data_criacao) == mes,
-            Chamado.nome_status.notin_(['cancelado', 'resolvido'])
-        ).group_by(
-            Chamado.nome_status
-        ).all()
-
-        # Dados por grupo (segunda rota)
-        grupo_data = db.session.query(
-            Chamado.nome_grupo,
-            func.count(Chamado.id).label('total')
-        ).filter(
-            extract('year', Chamado.data_criacao) == ano,
-            extract('month', Chamado.data_criacao) == mes
-        ).group_by(
-            Chamado.nome_grupo
-        ).order_by(
-            func.count(Chamado.id).desc()
-        ).all()
-
-        # Formatar no estilo da imagem
-        total_chamados = sum([r[1] for r in status_data])
-        
-        # Criar estrutura hierárquica
-        data = {
-            "Total": total_chamados,
-            "Status": {status: count for status, count in status_data},
-            "Grupos": {grupo or "Sem Grupo": count for grupo, count in grupo_data}
-        }
-
-        return jsonify({
-            "status": "success",
-            "data": data,
-            "mes_referencia": f"{mes}/{ano}"
-        })
-
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": "Erro ao gerar dashboard unificado",
             "details": str(e)
         }), 500'''
 
@@ -835,49 +548,6 @@ def chamados_por_grupo_mes():
             "details": str(e)
         }), 500
     
-'''@dashboard_bp.route('/ChamadosSuporte/por_operador_mes_atual', methods=['POST'])
-def chamados_por_operador_mes_atual():
-    try:
-        # Obtém o ano e mês atual
-        hoje = datetime.now()
-        ano_atual = hoje.year
-        mes_atual = hoje.month
-
-        # Consulta a contagem de chamados por operador no mês atual
-        resultados = db.session.query(
-            Chamado.operador,
-            func.count(Chamado.id).label('total')
-        ).filter(
-            extract('year', Chamado.data_criacao) == ano_atual,
-            extract('month', Chamado.data_criacao) == mes_atual
-        ).group_by(
-            Chamado.operador
-        ).all()
-
-        # Organiza os dados para o gráfico
-        labels = [r[0] for r in resultados]
-        dados = [r[1] for r in resultados]
-        backgroundColor = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
-
-        # Retorna os dados em formato JSON
-        return jsonify({
-            'status': 'success',
-            'data': {
-                'labels': labels,
-                'datasets': [{
-                    'data': dados,
-                    'backgroundColor': backgroundColor[:len(labels)]
-                }]
-            },
-            'mes_referencia': f'{mes_atual}/{ano_atual}'
-        })
-
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': str(e)
-        }), 500'''
-
 @dashboard_bp.route('/ChamadosSuporte/por_tipo_solicitacao_mes_atual', methods=['POST'])
 def chamados_por_tipo_solicitacao_hoje():
     try:
@@ -1072,7 +742,7 @@ def listar_sla_andamento_grupos():
             data = response.json()
             chamados = data.get("root", [])
 
-            grupos_desejados = ["INFOSEC", "DEV", "NOC", "CSM"]
+            grupos_desejados = ['INFOSEC - N2','DEV - N2', 'NOC - N2', "CSM"]
             chamados_grupos = [
                 c for c in chamados
                 if any(grupo in c.get("NomeGrupo", "").upper() for grupo in grupos_desejados)

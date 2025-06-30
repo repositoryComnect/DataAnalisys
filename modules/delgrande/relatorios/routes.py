@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, json
 import modules.delgrande.relatorios.utils as utils
-from application.models import db, DesempenhoAtendente, DesempenhoAtendenteVyrtos
+from application.models import db, DesempenhoAtendente, DesempenhoAtendenteVyrtos, PerformanceColaboradores
 from modules.delgrande.auth.utils import authenticate, authenticate_relatorio
 from settings.endpoints import CREDENTIALS
 from datetime import datetime, timedelta
@@ -143,7 +143,7 @@ def performanceAtendente():
 
     return jsonify(response)'''
 
-@relatorio_bp.route('/v2/report/attendants_performance', methods=['POST'])
+'''@relatorio_bp.route('/v2/report/attendants_performance', methods=['POST'])
 def importar_ligacoes_atendidas():
     try:
         # 1. Autenticar com usuário fixo
@@ -168,6 +168,7 @@ def importar_ligacoes_atendidas():
             initial_hour = "00:00:00"
             final_hour = "23:59:59"
             week = ""
+            fixed = 0
             agents = [2020, 2021, 2022, 2023, 2024, 2025, 2028, 2029]
             queues = [1]
             options = {
@@ -241,10 +242,45 @@ def importar_ligacoes_atendidas():
             "status": "error",
             "message": "Erro inesperado",
             "details": str(e)
+        }), 500'''
+
+# Versão futura do attendants_performance
+@relatorio_bp.route('/v2/report/attendants_performance', methods=['POST'])
+def buscar_desempenho_atendentes():
+    try:
+        hoje = datetime.now().date()  # apenas a data
+        ontem = hoje - timedelta(days=1)
+
+        # Consulta no banco de dados PerformanceColaboradores
+        resultados = (
+            db.session.query(
+                PerformanceColaboradores.name,
+                db.func.sum(PerformanceColaboradores.ch_atendidas).label('total')
+            )
+            .filter(PerformanceColaboradores.data == hoje)
+            .group_by(PerformanceColaboradores.name)
+            .all()
+        )
+
+        dados_grafico = [
+            {"nome": nome, "total": total}
+            for nome, total in resultados
+        ]
+
+        return jsonify({
+            "status": "success",
+            "data": dados_grafico,
+            "registros_encontrados": len(dados_grafico)
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": "Erro inesperado ao buscar desempenho de atendentes.",
+            "details": str(e)
         }), 500
 
-
-@relatorio_bp.route('/v2/report/attendants_performance_vyrtos', methods=['POST'])
+'''@relatorio_bp.route('/v2/report/attendants_performance_vyrtos', methods=['POST'])
 def importar_ligacoes_atendidas_vyrtos():
     try:
         # 1. Autenticar com usuário fixo
@@ -269,6 +305,7 @@ def importar_ligacoes_atendidas_vyrtos():
             initial_hour = "00:00:00"
             final_hour = "23:59:59"
             week = ""
+            fixed = 0
             agents = [2020, 2021, 2022, 2023, 2024, 2025, 2028, 2029]
             queues = [10]
             options = {
@@ -342,5 +379,41 @@ def importar_ligacoes_atendidas_vyrtos():
             "status": "error",
             "message": "Erro inesperado",
             "details": str(e)
+        }), 500'''
+
+@relatorio_bp.route('/v2/report/attendants_performance_vyrtos', methods=['POST'])
+def buscar_ligacoes_atendidas_vyrtos():
+    try:
+        hoje = datetime.now().date()
+
+        resultados = (
+            db.session.query(
+                DesempenhoAtendenteVyrtos.name,
+                db.func.sum(DesempenhoAtendenteVyrtos.ch_atendidas).label('total')
+            )
+            .filter(DesempenhoAtendenteVyrtos.data == hoje)
+            .group_by(DesempenhoAtendenteVyrtos.name)
+            .all()
+        )
+
+        dados_grafico = [
+            {"nome": nome, "total": total}
+            for nome, total in resultados
+        ]
+
+        return jsonify({
+            "status": "success",
+            "data": dados_grafico,
+            "registros_encontrados": len(dados_grafico)
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": "Erro ao buscar dados locais",
+            "details": str(e)
         }), 500
 
+@relatorio_bp.route('/GetEventosAtendente', methods=['POST'])
+def get_eventos_atendente():
+    return

@@ -35,14 +35,19 @@ class DesempenhoAtendente(db.Model):
 class DesempenhoAtendenteVyrtos(db.Model):
     __tablename__ = 'desempenho_atendente_vyrtos'
 
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(255))
-    chamadas_atendidas = db.Column(db.Integer)
-    data = db.Column(db.Date)
-    tempo_online = db.Column(db.Integer)
-    tempo_servico = db.Column(db.Integer)
-    tempo_totalatend = db.Column(db.Integer)
-    data_importacao = db.Column(db.DateTime, default=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(20))
+    operador_id = db.Column(db.Integer, nullable=False, index=True)
+    data = db.Column(db.Date, nullable=False, index=True)
+    ch_atendidas = db.Column(db.Integer, default=0)
+    ch_naoatendidas = db.Column(db.Integer, default=0)
+    tempo_online = db.Column(db.Integer, default=0)
+    tempo_livre = db.Column(db.Integer, default=0)
+    tempo_servico = db.Column(db.Integer, default=0)
+    pimprod_refeicao = db.Column(db.Integer, default=0)
+    tempo_minatend = db.Column(db.Integer, nullable=True)
+    tempo_medatend = db.Column(db.Float, nullable=True)
+    tempo_maxatend = db.Column(db.Integer, nullable=True)
 
 
 class Fila(db.Model):
@@ -75,6 +80,25 @@ class FilaVyrtus(db.Model):
     data = db.Column(db.DateTime)
 
 
+class PerformanceColaboradores(db.Model):
+    __tablename__ = 'performance_colaboradores'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(20))
+    operador_id = db.Column(db.Integer, nullable=False, index=True)
+    data = db.Column(db.Date, nullable=False, index=True)
+    ch_atendidas = db.Column(db.Integer, default=0)
+    ch_naoatendidas = db.Column(db.Integer, default=0)
+    tempo_online = db.Column(db.Integer, default=0)
+    tempo_livre = db.Column(db.Integer, default=0)
+    tempo_servico = db.Column(db.Integer, default=0)
+    pimprod_refeicao = db.Column(db.Integer, default=0)
+    tempo_minatend = db.Column(db.Integer, nullable=True)
+    tempo_medatend = db.Column(db.Float, nullable=True)
+    tempo_maxatend = db.Column(db.Integer, nullable=True)
+
+    def __repr__(self):
+        return f"<PerformanceColaboradores operador_id={self.operador_id} data={self.data}>"    
 
 class Chamado(db.Model):
     __tablename__ = 'chamados'
@@ -101,7 +125,8 @@ class Chamado(db.Model):
     sobrenome_operador = db.Column(db.String(100))
     total_acoes = db.Column(db.Integer)
     total_anexos = db.Column(db.Integer)
-    sla = db.Column(db.String(100))
+    sla_atendimento = db.Column(db.String(100))
+    sla_resolucao = db.Column(db.String(100))
     cod_grupo = db.Column(db.String(10))
     nome_grupo = db.Column(db.String(100))
     cod_solicitacao = db.Column(db.String(10))
@@ -118,6 +143,17 @@ class Chamado(db.Model):
     __table_args__ = (
         db.UniqueConstraint('chave', 'mes_referencia', name='uq_chave_mes'),
     )
+
+    def to_dict(self):
+        return {
+            "cod_chamado": self.cod_chamado,
+            "nome_status": self.nome_status,
+            "nome_grupo": self.nome_grupo,
+            "operador": self.operador,
+            "sla_atendimento": self.sla_atendimento,
+            "sla_resolucao": self.sla_resolucao,
+            "data_criacao": self.data_criacao.isoformat() if self.data_criacao else None
+        }
 
     def __repr__(self):
         return f'<Chamado {self.cod_chamado}>'

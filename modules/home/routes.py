@@ -13,10 +13,13 @@ def render_login():
     return render_template('login.html')
 
 @home_bp.route('/admin', methods=['GET'])
-@login_required
 def render_admin():
     return render_template('admin.html')
 
-home_bp.route('/colaboradores', methods=['GET'])
+@home_bp.route('/colaboradores', methods=['GET'])
 def render_operadores():
     return render_template('colaboradores.html')
+
+@home_bp.route('/insights', methods=['GET'])
+def render_insights():
+    return render_template('insights.html')
