@@ -19,7 +19,6 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f'<Usuario {self.username}>'
     
-
 class DesempenhoAtendente(db.Model):
     __tablename__ = 'desempenho_atendente'
 
@@ -49,7 +48,6 @@ class DesempenhoAtendenteVyrtos(db.Model):
     tempo_medatend = db.Column(db.Float, nullable=True)
     tempo_maxatend = db.Column(db.Integer, nullable=True)
 
-
 class Fila(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     numero = db.Column(db.Integer)
@@ -64,7 +62,6 @@ class Fila(db.Model):
     nivel_servico = db.Column(db.Float)
     data = db.Column(db.DateTime)
 
-
 class FilaVyrtus(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     numero = db.Column(db.Integer)
@@ -78,7 +75,6 @@ class FilaVyrtus(db.Model):
     tempo_fala = db.Column(db.Integer)
     nivel_servico = db.Column(db.Float)
     data = db.Column(db.DateTime)
-
 
 class PerformanceColaboradores(db.Model):
     __tablename__ = 'performance_colaboradores'
@@ -96,6 +92,7 @@ class PerformanceColaboradores(db.Model):
     tempo_minatend = db.Column(db.Integer, nullable=True)
     tempo_medatend = db.Column(db.Float, nullable=True)
     tempo_maxatend = db.Column(db.Integer, nullable=True)
+    data_importacao = db.Column(db.DateTime)
 
     def __repr__(self):
         return f"<PerformanceColaboradores operador_id={self.operador_id} data={self.data}>"    
@@ -157,3 +154,29 @@ class Chamado(db.Model):
 
     def __repr__(self):
         return f'<Chamado {self.cod_chamado}>'
+
+class Categoria(db.Model):
+    __tablename__ = 'categoria'
+
+    chave = db.Column(db.Integer, primary_key=True)
+    sequencia = db.Column(db.String(20))
+    sub_categoria = db.Column(db.String(100))
+    categoria = db.Column(db.String(100))
+    data_importacao = db.Column(db.DateTime)
+
+class PesquisaSatisfacao(db.Model):
+    __tablename__ = 'pesquisa_satisfacao'
+
+    id = db.Column(db.Integer, primary_key=True)
+    referencia_chamado = db.Column(db.String(50), nullable=False)
+    assunto = db.Column(db.String(255))
+    data_resposta = db.Column(db.Date)
+    data_finalizacao = db.Column(db.Date)
+    empresa = db.Column(db.String(255))
+    solicitante = db.Column(db.String(255))
+    operador = db.Column(db.String(255))
+    grupo = db.Column(db.String(255))
+    questionario = db.Column(db.String(255))
+    questao = db.Column(db.Text)
+    alternativa = db.Column(db.String(255))
+    resposta_dissertativa = db.Column(db.Text)
