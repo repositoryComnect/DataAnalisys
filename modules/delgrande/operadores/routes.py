@@ -1,124 +1,15 @@
 from flask import Blueprint, jsonify, request, render_template, url_for, session
 import modules.delgrande.relatorios.utils as utils
-from application.models import db, DesempenhoAtendente, DesempenhoAtendenteVyrtos, PerformanceColaboradores
+from application.models import db, DesempenhoAtendente, DesempenhoAtendenteVyrtos, PerformanceColaboradores, PesquisaSatisfacao
 from modules.delgrande.auth.utils import authenticate, authenticate_relatorio
 from application.models import Chamado
 from settings.endpoints import CREDENTIALS
 from datetime import datetime, timedelta
-from sqlalchemy import func, cast, Date
-from threading import Thread
-import concurrent.futures
+from sqlalchemy import func, cast, Date, and_
 
 
 operadores_bp = Blueprint('operadores_bp', __name__, url_prefix='/operadores')
 
-# Rota Render que funciona
-'''@operadores_bp.route('/performanceColaboradoresRender', methods=['POST'])
-def performance_colaboradores_render():
-    OPERADORES_IDS = {
-        "Matheus": 2021,
-        "Renato": 2020,
-        "Gustavo": 2022,
-        "Raysa": 2023,
-        "Danilo": 2025
-    }
-
-    data = request.get_json()
-    nome = data.get('nome')
-
-    if not nome:
-        return jsonify({"status": "error", "message": "Nome do operador não fornecido"}), 400
-
-    operador_id = OPERADORES_IDS.get(nome)
-    if not operador_id:
-        return jsonify({"status": "error", "message": f"Operador '{nome}' não encontrado"}), 404
-    
-    # Chama a função de processamento e inserção de dados em um thread
-    #thread = utils.processar_e_armazenar_performance()
-
-    auth_response = authenticate_relatorio(CREDENTIALS["username"], CREDENTIALS["password"])
-    if "access_token" not in auth_response:
-        return jsonify({"status": "error", "message": "Falha na autenticação"}), 401
-
-    access_token = auth_response["access_token"]
-    ontem = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-
-    class Params:
-        initial_date = ontem
-        final_date = ontem
-        initial_hour = "00:00:00"
-        final_hour = "23:59:59"
-        week = ""
-        fixed = 0
-        agents = [operador_id]
-        queues = [1]
-        options = {"sort": {"data": -1}, "offset": 0, "count": 1000}
-        conf = {}
-
-    response = utils.atendentePerformance(access_token, Params)
-    dados_atendentes = response.get("result", {}).get("data", [])
-
-    if not dados_atendentes:
-        return jsonify({"status": "error", "message": "Nenhum dado encontrado para esse colaborador"}), 404
-
-    acumulado = {
-        "ch_atendidas": 0,
-        "ch_naoatendidas": 0,
-        "tempo_online": 0,
-        "tempo_livre": 0,
-        "tempo_servico": 0,
-        "pimprod_Refeicao": 0,
-        "tempo_minatend": None,
-        "tempo_medatend": [],
-        "tempo_maxatend": None
-    }
-
-    for item in dados_atendentes:
-        acumulado["ch_atendidas"] += item.get("ch_atendidas", 0)
-        acumulado["ch_naoatendidas"] += item.get("ch_naoatendidas", 0)
-        acumulado["tempo_online"] += item.get("tempo_online", 0)
-        acumulado["tempo_livre"] += item.get("tempo_livre", 0)
-        acumulado["tempo_servico"] += item.get("tempo_servico", 0)
-        acumulado["pimprod_Refeicao"] += item.get("pimprod_Refeicao", 0)
-
-        if item.get("tempo_minatend") is not None:
-            acumulado["tempo_minatend"] = (
-                item["tempo_minatend"]
-                if acumulado["tempo_minatend"] is None
-                else min(acumulado["tempo_minatend"], item["tempo_minatend"])
-            )
-
-        if item.get("tempo_maxatend") is not None:
-            acumulado["tempo_maxatend"] = (
-                item["tempo_maxatend"]
-                if acumulado["tempo_maxatend"] is None
-                else max(acumulado["tempo_maxatend"], item["tempo_maxatend"])
-            )
-
-        if item.get("tempo_medatend") is not None:
-            acumulado["tempo_medatend"].append(item["tempo_medatend"])
-
-    media_geral = (
-        sum(acumulado["tempo_medatend"]) / len(acumulado["tempo_medatend"])
-        if acumulado["tempo_medatend"] else 0
-    )
-
-    dados = {
-        "ch_atendidas": acumulado["ch_atendidas"],
-        "ch_naoatendidas": acumulado["ch_naoatendidas"],
-        "tempo_online": acumulado["tempo_online"],
-        "tempo_livre": acumulado["tempo_livre"],
-        "tempo_servico": acumulado["tempo_servico"],
-        "pimprod_Refeicao": acumulado["pimprod_Refeicao"],
-        "tempo_minatend": acumulado["tempo_minatend"] or 0,
-        "tempo_medatend": round(media_geral, 2),
-        "tempo_maxatend": acumulado["tempo_maxatend"] or 0
-    }
-
-    session['nome'] = nome
-    session['dados'] = dados
-
-    return jsonify({"redirect_url": url_for('operadores_bp.render_operadores')})'''
 
 '''@operadores_bp.route('/performanceColaboradores', methods=['POST'])
 def get_performance_colaboradores():
@@ -265,10 +156,10 @@ def performance_colaboradores_render():
         return jsonify({"status": "error", "message": f"Operador '{nome}' não encontrado"}), 404
 
     # Define a data (ontem)
-    ontem = datetime.now().date() - timedelta(days=1)
+    hoje = datetime.now().date()
 
     # Busca os registros no banco
-    registros = PerformanceColaboradores.query.filter_by(operador_id=operador_id, data=ontem).all()
+    registros = PerformanceColaboradores.query.filter_by(operador_id=operador_id, data=hoje).all()
 
     # Inicializa os acumuladores
     acumulado = {
@@ -611,8 +502,6 @@ def chamados_por_operador_periodo():
             "message": str(e)
         }), 500
 
-# Assumindo que você já tem `db`, `Chamado`, `utils`, `authenticate_relatorio`, e `CREDENTIALS` importados
-
 @operadores_bp.route('/ChamadosSuporte/ticketsTelefoneVsAtendidas', methods=['POST'])
 def chamados_telefone_vs_atendidas():
     try:
@@ -743,116 +632,63 @@ def get_sla_operador():
         "codigos_resolucao": [c.cod_chamado for c in chamados_expirados if c.sla_resolucao == 'S']
     })
 
-'''@operadores_bp.route('/ChamadosSuporte/ticketsTelefoneVsAtendidas', methods=['POST'])
-def chamados_telefone_vs_atendidas():
-    OPERADORES_IDS = {
-        "Matheus": 2021,
-        "Renato": 2020,
-        "Gustavo": 2022,
-        "Raysa": 2023,
-        "Danilo": 2025
-    }
+@operadores_bp.route('/pSatisfacaoOperador', methods=['POST'])
+def listar_p_satisfacao():
+    data = request.get_json()
+    dias = int(data.get('dias', 1))
+    nome = data.get('nome')
+    data_limite = (datetime.now() - timedelta(days=dias)).date()  # só data, sem hora
 
-    try:
-        dias_str = str(request.json.get("dias", "1"))
-        nome_operador = request.json.get("nome")
+    # Filtro base
+    filtro_base = [
+        PesquisaSatisfacao.data_resposta >= data_limite,
+        PesquisaSatisfacao.operador.ilike(f"{nome}%")  # ilike = case-insensitive
+    ]
 
-        if not nome_operador:
-            return jsonify({'status': 'error', 'message': 'Nome do operador não fornecido'}), 400
+    # Total de pesquisas do operador no período
+    total_pesquisas = db.session.query(func.count()).filter(*filtro_base).scalar()
 
-        operador_id = OPERADORES_IDS.get(nome_operador)
-        if not operador_id:
-            return jsonify({'status': 'error', 'message': f"Operador '{nome_operador}' não encontrado"}), 404
+    # Total com alternativa respondida
+    respondidas = db.session.query(func.count()).filter(
+        *filtro_base,
+        PesquisaSatisfacao.alternativa.isnot(None),
+        func.length(PesquisaSatisfacao.alternativa) > 0
+    ).scalar()
 
-        hoje = datetime.now()
-        ontem = hoje - timedelta(days=1)
+    nao_respondidas = total_pesquisas - respondidas
 
-        periodos = {
-            "1": (ontem).strftime('%Y-%m-%d'),
-            "7": (hoje - timedelta(days=6)).strftime('%Y-%m-%d'),
-            "15": (hoje - timedelta(days=14)).strftime('%Y-%m-%d'),
-            "30": (hoje - timedelta(days=29)).strftime('%Y-%m-%d'),
-            "90": (hoje - timedelta(days=89)).strftime('%Y-%m-%d')
-        }
+    percentual_respondidas = round((respondidas / total_pesquisas) * 100, 2) if total_pesquisas else 0
+    percentual_nao_respondidas = 100 - percentual_respondidas if total_pesquisas else 0
 
-        data_inicial_str = periodos.get(dias_str, periodos["1"])
-        data_final_str = ontem.strftime('%Y-%m-%d')
+    # Lista das alternativas preenchidas para esse operador
+    alternativas_respondidas = db.session.query(PesquisaSatisfacao.alternativa).filter(
+        *filtro_base,
+        PesquisaSatisfacao.alternativa.isnot(None),
+        func.length(PesquisaSatisfacao.alternativa) > 0
+    ).all()
 
-        data_inicial = datetime.strptime(data_inicial_str, "%Y-%m-%d")
-        data_final = datetime.strptime(data_final_str, "%Y-%m-%d")
+    lista_alternativas = [alt[0] for alt in alternativas_respondidas]
 
-        lista_dias = [
-            data_inicial.date() + timedelta(days=i)
-            for i in range((data_final.date() - data_inicial.date()).days + 1)
-        ]
-        labels = [dia.strftime('%d/%m') for dia in lista_dias]
+    # Adicione isso antes do return
+    comentarios = db.session.query(PesquisaSatisfacao.resposta_dissertativa).filter(
+        and_(
+            PesquisaSatisfacao.data_resposta >= data_limite,
+            PesquisaSatisfacao.operador.ilike(f"{nome}%"),
+            PesquisaSatisfacao.resposta_dissertativa.isnot(None),
+            func.length(PesquisaSatisfacao.resposta_dissertativa) > 0
+        )
+    ).all()
 
-        # === Chamados por canal (telefone - 000004)
-        chamados_result = db.session.query(
-            func.date(Chamado.data_criacao).label('dia'),
-            func.count(Chamado.id)
-        ).filter(
-            Chamado.cod_solicitacao == '000004',
-            Chamado.data_criacao >= data_inicial,
-            Chamado.data_criacao <= data_final
-        ).group_by(
-            func.date(Chamado.data_criacao)
-        ).all()
+    lista_comentarios = [c[0] for c in comentarios]
 
-        chamados_por_dia = {dia: total for dia, total in chamados_result}
-        dados_chamados = [chamados_por_dia.get(d, 0) for d in lista_dias]
-
-        # === Chamadas atendidas
-        access_token = authenticate_relatorio(CREDENTIALS["username"], CREDENTIALS["password"])["access_token"]
-
-        def obter_atendimentos_por_dia(d):
-            class Params:
-                initial_date = d.strftime('%Y-%m-%d')
-                final_date = d.strftime('%Y-%m-%d')
-                initial_hour = "00:00:00"
-                final_hour = "23:59:59"
-                fixed = 0
-                week = ""
-                agents = [operador_id]
-                queues = [1]
-                options = {"sort": {"data": -1}, "offset": 0, "count": 1000}
-                conf = {}
-
-            try:
-                result = utils.atendentePerformance(access_token, Params)
-                dados = result.get("result", {}).get("data", [])
-                return sum(item.get("ch_atendidas", 0) for item in dados)
-            except Exception:
-                return 0
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            atendimentos_por_dia = list(executor.map(obter_atendimentos_por_dia, lista_dias))
-
-        return jsonify({
-            'status': 'success',
-            'data': {
-                'labels': labels,
-                'datasets': [
-                    {
-                        'label': 'Chamados Telefone',
-                        'data': dados_chamados,
-                        'backgroundColor': 'rgba(255, 99, 132, 0.5)',
-                        'borderColor': 'rgba(255, 99, 132, 1)',
-                        'fill': False,
-                        'tension': 0.3
-                    },
-                    {
-                        'label': 'Chamadas Atendidas',
-                        'data': atendimentos_por_dia,
-                        'backgroundColor': 'rgba(54, 162, 235, 0.5)',
-                        'borderColor': 'rgba(54, 162, 235, 1)',
-                        'fill': False,
-                        'tension': 0.3
-                    }
-                ]
-            }
-        })
-
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500'''
-
+    return jsonify({
+        "status": "success",
+        "operador": nome,
+        "total": total_pesquisas,
+        "respondidas": respondidas,
+        "nao_respondidas": nao_respondidas,
+        "percentual_respondidas": percentual_respondidas,
+        "percentual_nao_respondidas": percentual_nao_respondidas,
+        "alternativas": lista_alternativas,
+        "comentarios": lista_comentarios
+    })

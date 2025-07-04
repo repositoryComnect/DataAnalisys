@@ -1,7 +1,7 @@
 import requests, json
 import settings.endpoints as endpoints
 from urllib.parse import urlencode
-from application.models import db, DesempenhoAtendente, DesempenhoAtendenteVyrtos, PerformanceColaboradores, Chamado
+from application.models import db, DesempenhoAtendente, DesempenhoAtendenteVyrtos, PerformanceColaboradores, Chamado, Categoria, PesquisaSatisfacao
 from modules.delgrande.auth.utils import authenticate, authenticate_relatorio
 from modules.deskmanager.authenticate.routes import token_desk
 import modules.delgrande.relatorios.utils as utils
@@ -42,7 +42,6 @@ def get_relatorio(token, params):
             "status_code": getattr(e.response, "status_code", 500),
             "url": url
         }
-
 
 def get_relatorio_login_logoff(token, params):
     base_url = endpoints.LOGIN_LOGOFF
@@ -86,7 +85,6 @@ def get_relatorio_login_logoff(token, params):
             "url": url
         }
 
-
 def get_chamada_saida(token, params):
     base_url = endpoints.CHAMADA_SAIDA
 
@@ -129,7 +127,6 @@ def get_chamada_saida(token, params):
             "status_code": getattr(e.response, "status_code", 500),
             "url": url
         }
-
 
 def atendentePerformance(token, params):
     base_url = endpoints.PERFORMANCE_ATENDENTES
@@ -200,8 +197,6 @@ def atendentePerformance(token, params):
             "status_code": getattr(e.response, "status_code", 500),
             "url": base_url
         }'''
-
-from datetime import datetime, timedelta
 
 def gerar_intervalos(data_inicial, data_final, tamanho=15):
     """
@@ -307,7 +302,8 @@ def processar_e_armazenar_performance(dias=180, incremental=False):
                             pimprod_refeicao=item.get("pimprod_Refeicao", 0),
                             tempo_minatend=item.get("tempo_minatend"),
                             tempo_medatend=item.get("tempo_medatend"),
-                            tempo_maxatend=item.get("tempo_maxatend")
+                            tempo_maxatend=item.get("tempo_maxatend"),
+                            data_importacao=datetime.now()
                         )
                         db.session.add(registro)
                         total_registros += 1
@@ -322,6 +318,191 @@ def processar_e_armazenar_performance(dias=180, incremental=False):
         db.session.commit()
 
     return {"status": "success", "message": "Dados inseridos com sucesso (modo incremental)." if incremental else "Carga completa realizada com sucesso."}
+
+def processar_e_armazenar_performance_incremental():
+    hoje = datetime.now().date()
+
+    # Autenticação
+    auth_response = authenticate_relatorio(CREDENTIALS["username"], CREDENTIALS["password"])
+    if "access_token" not in auth_response:
+        return {"status": "error", "message": "Falha na autenticação"}
+    access_token = auth_response["access_token"]
+
+    OPERADORES_MAP = {
+        2020: "Renato",
+        2021: "Matheus",
+        2022: "Gustavo",
+        2023: "Raysa",
+        2024: "Lucas",
+        2025: "Danilo",
+        2028: "Henrique",
+        2029: "Rafael"
+    }
+
+    total_registros = 0
+
+    for operador_id, nome_operador in OPERADORES_MAP.items():
+        offset = 0
+
+        while True:
+            params = {
+                "initial_date": hoje.strftime('%Y-%m-%d'),
+                "final_date": hoje.strftime('%Y-%m-%d'),
+                "initial_hour": "00:00:00",
+                "final_hour": "23:59:59",
+                "fixed": 0,
+                "week": [],
+                "agents": [operador_id],
+                "queues": [1],
+                "options": {"sort": {"data": 1}, "offset": offset, "count": 1000},
+                "conf": {}
+            }
+
+            print(f"[{nome_operador}] Buscando dados de {hoje}, offset {offset}")
+            response = utils.atendentePerformanceData(access_token, params)
+            dados = response.get("result", {}).get("data", [])
+
+            if not dados:
+                print(f"[{nome_operador}] Nenhum dado retornado.")
+                break
+
+            registros = []
+            for item in dados:
+                try:
+                    data_raw = item["data"].split("T")[0] if "T" in item["data"] else item["data"]
+                    data_registro = datetime.strptime(data_raw, "%Y-%m-%d").date()
+
+                    # Remove duplicado antes de inserir
+                    PerformanceColaboradores.query.filter_by(
+                        operador_id=operador_id,
+                        data=data_registro
+                    ).delete()
+
+                    registro = PerformanceColaboradores(
+                        name=nome_operador,
+                        operador_id=operador_id,
+                        data=data_registro,
+                        ch_atendidas=item.get("ch_atendidas", 0),
+                        ch_naoatendidas=item.get("ch_naoatendidas", 0),
+                        tempo_online=item.get("tempo_online", 0),
+                        tempo_livre=item.get("tempo_livre", 0),
+                        tempo_servico=item.get("tempo_servico", 0),
+                        pimprod_refeicao=item.get("pimprod_Refeicao", 0),
+                        tempo_minatend=item.get("tempo_minatend"),
+                        tempo_medatend=item.get("tempo_medatend"),
+                        tempo_maxatend=item.get("tempo_maxatend"),
+                        data_importacao=datetime.now()
+                    )
+                    registros.append(registro)
+                except Exception as e:
+                    print(f"[ERRO] {nome_operador} em {item.get('data')}: {str(e)}")
+
+            if registros:
+                db.session.bulk_save_objects(registros)
+                db.session.commit()
+                print(f"[{nome_operador}] {len(registros)} registros inseridos.")
+                total_registros += len(registros)
+
+            offset += 1000  # Próxima página
+
+    return {"status": "success", "message": f"{total_registros} registros inseridos hoje."}
+
+def processar_e_armazenar_performance_vyrtos_incremental():
+    hoje = datetime.now().date()
+
+    # Autenticação
+    auth_response = authenticate_relatorio(CREDENTIALS["username"], CREDENTIALS["password"])
+    if "access_token" not in auth_response:
+        return {"status": "error", "message": "Falha na autenticação"}
+    access_token = auth_response["access_token"]
+
+    OPERADORES_MAP = {
+        2020: "Renato",
+        2021: "Matheus",
+        2022: "Gustavo",
+        2023: "Raysa",
+        2024: "Lucas",
+        2025: "Danilo",
+        2028: "Henrique",
+        2029: "Rafael"
+    }
+
+    total_registros = 0
+
+    for operador_id, nome_operador in OPERADORES_MAP.items():
+        offset = 0
+        registros = []
+
+        while True:
+            params = {
+                "initial_date": hoje.strftime('%Y-%m-%d'),
+                "final_date": hoje.strftime('%Y-%m-%d'),
+                "initial_hour": "00:00:00",
+                "final_hour": "23:59:59",
+                "fixed": 0,
+                "week": [],
+                "agents": [operador_id],
+                "queues": [10],
+                "options": {"sort": {"data": 1}, "offset": offset, "count": 1000},
+                "conf": {}
+            }
+
+            print(f"[{nome_operador}] Buscando dados de {hoje}, offset {offset}")
+            response = utils.atendentePerformanceData(access_token, params)
+            dados = response.get("result", {}).get("data", [])
+
+            if not dados:
+                print(f"[{nome_operador}] Nenhum dado retornado.")
+                break
+
+            for item in dados:
+                try:
+                    data_raw = item["data"].split("T")[0] if "T" in item["data"] else item["data"]
+                    data_registro = datetime.strptime(data_raw, "%Y-%m-%d").date()
+
+                    # Evita duplicidade
+                    exists = DesempenhoAtendenteVyrtos.query.filter_by(
+                        operador_id=operador_id,
+                        data=data_registro
+                    ).first()
+                    if exists:
+                        continue
+
+                    registro = DesempenhoAtendenteVyrtos(
+                        name=nome_operador,
+                        operador_id=operador_id,
+                        data=data_registro,
+                        ch_atendidas=item.get("ch_atendidas", 0),
+                        ch_naoatendidas=item.get("ch_naoatendidas", 0),
+                        tempo_online=item.get("tempo_online", 0),
+                        tempo_livre=item.get("tempo_livre", 0),
+                        tempo_servico=item.get("tempo_servico", 0),
+                        pimprod_refeicao=item.get("pimprod_Refeicao", 0),
+                        tempo_minatend=item.get("tempo_minatend"),
+                        tempo_medatend=item.get("tempo_medatend"),
+                        tempo_maxatend=item.get("tempo_maxatend"),
+                        data_importacao=datetime.now()
+                    )
+                    registros.append(registro)
+
+                except Exception as e:
+                    print(f"[ERRO] {nome_operador} em {item.get('data')}: {str(e)}")
+
+            if len(dados) < 1000:
+                break
+
+            offset += 1000
+
+        if registros:
+            db.session.bulk_save_objects(registros)
+            db.session.commit()
+            print(f"[{nome_operador}] {len(registros)} registros inseridos.")
+            total_registros += len(registros)
+
+    return {
+        "status": "success",
+        "message": f"{total_registros} registros inseridos no modo incremental (Vyrtos)."
+    }
 
 def processar_e_armazenar_performance_vyrtos(dias=180, incremental=False):
     hoje = datetime.now().date()
@@ -573,6 +754,10 @@ def importar_chamados():
                     existente.sla_atendimento = chamado.get('Sla1Expirado')
                     existente.sla_resolucao = chamado.get('Sla2Expirado')
                     existente.cod_categoria_tipo = chamado.get('CodCategoriaTipo')
+                    existente.solicitante_email = chamado.get('SolicitanteEmail')
+                    existente.nome_prioridade = chamado.get('NomePrioridade'),
+                    existente.cod_tipo_ocorrencia = chamado.get('CodTipoOcorrencia'),
+                    existente.cod_sub_categoria = chamado.get('CodSubCategoria')
                     existente.data_finalizacao = data_finalizacao
                     existente.mes_referencia = f"{data_criacao.year}-{data_criacao.month:02d}"
                     existente.data_importacao = datetime.now()
@@ -589,6 +774,9 @@ def importar_chamados():
                         sla_atendimento=chamado.get('Sla1Expirado'),
                         sla_resolucao=chamado.get('Sla2Expirado'),
                         cod_categoria_tipo=chamado.get('CodCategoriaTipo'),
+                        cod_tipo_ocorrencia = chamado.get('CodTipoOcorrencia'),
+                        solicitante_email = chamado.get('SolicitanteEmail'),
+                        nome_prioridade = chamado.get('NomePrioridade'),
                         data_finalizacao=data_finalizacao,
                         mes_referencia=f"{data_criacao.year}-{data_criacao.month:02d}",
                         data_importacao=datetime.now()
@@ -604,4 +792,133 @@ def importar_chamados():
         "total_api": len(chamados_api),
         "inseridos": total_inseridos,
         "atualizados": total_atualizados
+    }
+
+def parse_data(data_str):
+    """Converte string no formato 'YYYY-MM-DD' para datetime.date"""
+    try:
+        return datetime.strptime(data_str, "%Y-%m-%d").date()
+    except:
+        return None
+
+def importar_pSatisfacao():
+    token = token_desk()
+    if not token:
+        raise Exception("Falha na autenticação")
+
+    payload = {
+        "Pesquisa": "",
+        "Respondidas": "",
+        "ModoExibicao": "Alternativa",
+        "Colunas": {
+            "ReferenciaChamado": "on",
+            "AssuntoChamado": "on",
+            "DataRespostaChamado": "on",
+            "DataFinalizacaoChamado": "on",
+            "Empresa": "on",
+            "Solicitante": "on",
+            "Operador": "on",
+            "Grupo": "on",
+            "Questionarios": "on",
+            "Questoes": "on",
+            "Alternativas": "on",
+            "RespDissertativa": "on"
+        },
+        "Filtro": {
+            "CodPS": [""],
+            "CodQuestao": [""],
+            "DataPersonalizada": [""],
+            "PesquisaSatisfacaoData": [""],
+            "DataPersonalizada2": [""],
+            "ExpiraPesquisaSatisfacao": [""]
+        }
+    }
+
+    response = requests.post(
+        'https://api.desk.ms/PesquisaSatisfacao/lista',
+        headers={'Authorization': token, 'Content-Type': 'application/json'},
+        json=payload,
+    )
+
+    response.raise_for_status()
+    p_satisfacao = response.json().get("root", [])
+
+    print(f"Total recebido: {len(p_satisfacao)}")
+
+    existentes = set(
+        row.referencia_chamado for row in PesquisaSatisfacao.query.with_entities(PesquisaSatisfacao.referencia_chamado).all()
+    )
+
+    novos = []
+    for satisfacao in p_satisfacao:
+        ref = satisfacao.get("ReferenciaChamado")
+        if not ref or ref in existentes:
+            continue  # pular se já existe
+
+        nova = PesquisaSatisfacao(
+            referencia_chamado=ref,
+            assunto=satisfacao.get("AssuntoChamado"),
+            data_resposta=parse_data(satisfacao.get("DataRespostaChamado")),
+            data_finalizacao=parse_data(satisfacao.get("DataFinalizacaoChamado")),
+            empresa=satisfacao.get("Empresa"),
+            solicitante=satisfacao.get("Solicitante"),
+            operador=satisfacao.get("Operador"),
+            grupo=satisfacao.get("Grupo"),
+            questionario=satisfacao.get("Questionarios"),
+            questao=satisfacao.get("Questoes"),
+            alternativa=satisfacao.get("Alternativas"),
+            resposta_dissertativa=satisfacao.get("RespDissertativa")
+        )
+        novos.append(nova)
+
+    if novos:
+        db.session.bulk_save_objects(novos)
+        db.session.commit()
+        print(f"{len(novos)} registros inseridos.")
+    else:
+        print("Nenhum novo registro para inserir.")
+
+def importar_categorias():
+    token = token_desk()
+
+    if not token:
+        raise Exception("Falha na autenticação")
+    
+    payload = {
+        "Pesquisa": "",		
+        "Ativo": "S",			
+        "Ordem": [			
+            {
+        "Coluna": "SubCategoria",
+        "Direcao": "true"		
+        }
+    ]}
+
+    response = requests.post(
+        'https://api.desk.ms/SubCategorias/lista',
+        headers={'Authorization': f'{token}', 'Content-Type': 'application/json'},
+        json=payload,
+    )
+    response.raise_for_status()
+    categorias_api = response.json().get("root", [])
+
+    total_inseridos = 0
+    total_atualizados = 0
+
+    with db.session.begin():
+        for categorias in categorias_api:
+            persist_categorias = Categoria(
+                chave = categorias.get("Chave"),
+                sequencia = categorias.get("Sequencia"),
+                sub_categoria = categorias.get("SubCategoria"),
+                categoria = categorias.get("Categoria"),
+                data_importacao = datetime.now()
+            )
+
+            db.session.add(persist_categorias)
+            total_inseridos += 1
+
+    return {
+        "total_api": len(categorias_api),
+        "inseridos": total_inseridos,
     }

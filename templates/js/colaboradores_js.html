@@ -50,27 +50,32 @@ function copiarChamados() {
       } else {
         const ctx = document.getElementById("tempoDistribuicaoChart").getContext('2d');
         chartDistribuicao = new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            labels: ["Online", "Livre", "Serviço", "Refeição"],
-            datasets: [{
-              data: distribuicaoPercentual,
-              backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { position: 'bottom' },
-              datalabels: {
-                color: '#fff',
-                formatter: value => `${value.toFixed(1)}%`,
-                font: { weight: 'bold', size: 14 }
+        type: 'doughnut',
+        data: {
+          labels: ["Online", "Livre", "Serviço", "Refeição"],
+          datasets: [{
+            data: distribuicaoPercentual,
+            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#fff'  // ← deixa o texto da legenda branco
               }
+            },
+            datalabels: {
+              color: '#fff',  // ← deixa os números dentro do gráfico brancos
+              formatter: value => `${value.toFixed(1)}%`,
+              font: { weight: 'bold', size: 14 }
             }
-          },
-          plugins: [ChartDataLabels]
-        });
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
       }
     }
 
@@ -169,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: { position: "bottom", labels: { color: "#000" } },
+                            legend: { position: "bottom", labels: { color: "#fff" } },
                             tooltip: {
                                 backgroundColor: "#000",
                                 titleColor: "#fff",
@@ -178,12 +183,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         },
                         scales: {
                             x: {
-                                ticks: { color: "#000" },
+                                ticks: { color: "#fff" },
                                 grid: { color: "rgba(0,0,0,0.1)" }
                             },
                             y: {
                                 beginAtZero: true,
-                                ticks: { color: "#000" },
+                                ticks: { color: "#fff" },
                                 grid: { color: "rgba(0,0,0,0.1)" }
                             }
                         }
@@ -258,10 +263,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: false,
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => `${ctx.label}: ${ctx.parsed.y}`
+        legend: false,
+        tooltip: {
+            backgroundColor: "#000",         // fundo escuro no tooltip
+            titleColor: "#fff",              // título branco
+            bodyColor: "#fff",               // texto branco
+            callbacks: {
+                label: ctx => `${ctx.label}: ${ctx.parsed.y}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: "#fff" // ← Labels do eixo X em branco
+                            },
+                            grid: {
+                                color: "rgba(255,255,255,0.1)" // ← grade clara (opcional)
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: "#fff" // ← Labels do eixo Y em branco
+                            },
+                            grid: {
+                                color: "rgba(255,255,255,0.1)" // ← grade clara (opcional)
                             }
                         }
                     },
@@ -324,4 +351,76 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 </script>
+
+<!-- Script que traz a pesquisa de satisfação e popula o modal -->
+<script>
+  let comentariosPesquisa = [];
+
+  document.addEventListener("DOMContentLoaded", function () {
+    atualizarCardPesquisaSatisfacao(1); // valor inicial
+
+    // Botões de filtro por período
+    document.querySelectorAll('.filtro-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const dias = parseInt(this.getAttribute('data-dias'), 10);
+        atualizarCardPesquisaSatisfacao(dias);
+      });
+    });
+
+    // Evento que preenche o modal no momento em que ele é exibido
+    const modalElement = document.getElementById("modalComentariosPesquisa");
+    modalElement.addEventListener("shown.bs.modal", function () {
+      const lista = document.getElementById("listaComentarios");
+      lista.innerHTML = "";
+
+      if (comentariosPesquisa.length > 0) {
+        comentariosPesquisa.forEach(coment => {
+          const li = document.createElement("li");
+          li.textContent = coment;
+          lista.appendChild(li);
+        });
+      } else {
+        const li = document.createElement("li");
+        li.textContent = "Nenhum comentário disponível.";
+        lista.appendChild(li);
+      }
+    });
+  });
+
+  function atualizarCardPesquisaSatisfacao(dias) {
+    const nomeOperador = document.getElementById("colaboradorNome")?.textContent?.trim();
+
+    fetch('/operadores/pSatisfacaoOperador', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dias, nome: nomeOperador })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Dados recebidos:", data);
+
+      const naoRespondidasEl = document.getElementById("percentual-null");
+      const respondidasEl = document.getElementById("percentual-retorno");
+
+      if (data.status === 'success') {
+        naoRespondidasEl.textContent = data.percentual_nao_respondidas + '%';
+        respondidasEl.textContent = data.percentual_respondidas + '%';
+        comentariosPesquisa = data.alternativas || [];
+      } else {
+        naoRespondidasEl.textContent = '-';
+        respondidasEl.textContent = '-';
+        comentariosPesquisa = [];
+      }
+    })
+    .catch(error => {
+      console.error("Erro ao buscar dados:", error);
+      document.getElementById("percentual-null").textContent = '-';
+      document.getElementById("percentual-retorno").textContent = '-';
+      comentariosPesquisa = [];
+    });
+  }
+</script>
+
 

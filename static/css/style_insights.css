@@ -1,0 +1,14 @@
+.carousel-control-prev,
+.carousel-control-next {
+  width: 5%; /* ou 3% se quiser mais estreito */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.carousel-control-prev {
+  left: -5%;  /* empurra para fora da borda do carrossel */
+}
+
+.carousel-control-next {
+  right: -5%; /* empurra para fora da borda do carrossel */
+}

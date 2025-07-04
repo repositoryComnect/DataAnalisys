@@ -20,10 +20,14 @@ from modules.deskmanager.dashboard.routes import dashboard_bp
 from modules.admin.routes import admin_bp
 from modules.delgrande.operadores.routes import operadores_bp
 from modules.insights.routes import insights_bp
+from modules.relatorios.routes import relatorios_bp
 from modules.delgrande.relatorios.utils import (
     processar_e_armazenar_performance,
     processar_e_armazenar_performance_vyrtos,
-    importar_chamados
+    importar_chamados,
+    processar_e_armazenar_performance_incremental,
+    processar_e_armazenar_performance_vyrtos_incremental,
+    importar_pSatisfacao
 )
 
 # ----------------- LOGGING CONFIG -----------------
@@ -62,6 +66,7 @@ app.register_blueprint(dashboard_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(operadores_bp)
 app.register_blueprint(insights_bp)
+app.register_blueprint(relatorios_bp)
 
 # Init extensions
 db.init_app(app)
@@ -77,18 +82,34 @@ def load_user(user_id):
 # Scheduled task functions
 def tarefa_horaria_processar_performance():
     with app.app_context():
-        logging.info("[AGENDADO] Iniciando coleta e armazenamento de performance padrão...")
-        resultado1 = processar_e_armazenar_performance(dias=1, incremental=True)
-        logging.info(f"[AGENDADO] Resultado padrão: {resultado1}")
-
-        logging.info("[AGENDADO] Iniciando coleta e armazenamento de performance Vyrtos...")
-        resultado2 = processar_e_armazenar_performance_vyrtos(dias=1, incremental=True)
-        logging.info(f"[AGENDADO] Resultado Vyrtos: {resultado2}")
+        try:
+            logging.info("[AGENDADO] Iniciando coleta e armazenamento de performance padrão...")
+            resultado1 = processar_e_armazenar_performance_incremental()
+            logging.info(f"[AGENDADO] Resultado padrão: {resultado1}")
+        except Exception as e:
+            logging.error(f"[AGENDADO] Erro ao importar performance. ")
+        
+def tarefa_horaria_processar_performance_vyrtos():
+    with app.app_context():
+        try:
+            logging.info("[AGENDADO] Iniciando coleta e armazenamento de performance Vyrtos...")
+            resultado2 = processar_e_armazenar_performance_vyrtos_incremental(incremental=True)
+            logging.info(f"[AGENDADO] Resultado Vyrtos: {resultado2}")
+        except Exception as e:
+            logging.error(f"[AGENDADO] Erro ao importar performance. ")
 
 def tarefa_importar_chamados():
     with app.app_context():
         try:
             total = importar_chamados()
+            logging.info(f"[AGENDADO] {total} chamados importados com sucesso.")
+        except Exception as e:
+            logging.error(f"[AGENDADO] Erro ao importar chamados: {e}")
+
+def tarefa_importar_psatisfacao():
+     with app.app_context():
+        try:
+            total = importar_pSatisfacao()
             logging.info(f"[AGENDADO] {total} chamados importados com sucesso.")
         except Exception as e:
             logging.error(f"[AGENDADO] Erro ao importar chamados: {e}")
@@ -112,14 +133,28 @@ with app.app_context():
         id='job_processa_performance_horaria',
         func=tarefa_horaria_processar_performance,
         trigger='interval',
-        hours=1
+        minutes=5
+    )
+
+    scheduler.add_job(
+        id='job_processa_performance_horaria_vyrtos',
+        func=tarefa_horaria_processar_performance_vyrtos,
+        trigger='interval',
+        minutes=5
     )
 
     scheduler.add_job(
         id='job_importar_chamados',
         func=tarefa_importar_chamados,
         trigger='interval',
-        minutes=10
+        minutes=5
+    )
+
+    scheduler.add_job(
+        id='job_importar_psatisfacao',
+        func=tarefa_importar_psatisfacao,
+        trigger='interval',
+        minutes=5
     )
 
     scheduler.start()

@@ -1,7 +1,5 @@
 from flask import Blueprint, jsonify, request
-from settings import endpoints
-import requests, json, os
-import calendar
+import requests
 import modules.delgrande.relatorios.utils as utils
 from modules.deskmanager.authenticate.routes import token_desk
 from datetime import datetime, timedelta
@@ -10,7 +8,6 @@ from application.models import db, Chamado, DesempenhoAtendente
 from sqlalchemy import extract, func
 from modules.delgrande.auth.utils import authenticate, authenticate_relatorio
 from settings.endpoints import CREDENTIALS
-import random
 
 
 admin_bp = Blueprint('admin_bp', __name__, url_prefix='/admin')
@@ -207,10 +204,6 @@ def get_operadores():
             "status": "error",
             "message": str(e)
         }), 500
-
-
-
-
 
 # Rota que traz total de chamados abertos no período de uma semana
 @admin_bp.route('/ChamadosSuporteSemanal', methods=['POST'])
@@ -523,7 +516,7 @@ def chamados_por_operador_periodo():
 def estatisticas_chamados_periodos():
     try:
         dados = request.get_json(force=True)
-        dias = int(dados.get("dias", 7))  # padrão: últimos 7 dias
+        dias = int(dados.get("dias", 1))  # padrão: últimos 7 dias
         data_limite = datetime.now() - timedelta(days=dias)
 
         chamados_abertos = db.session.query(
@@ -532,8 +525,8 @@ def estatisticas_chamados_periodos():
             Chamado.nome_grupo,
             Chamado.data_criacao
         ).filter(
-            #Chamado.nome_status.notin_(['cancelado', 'resolvido']),
-            Chamado.data_criacao >= data_limite
+            Chamado.data_criacao >= data_limite,
+            ~Chamado.nome_status.in_(["Cancelado"])
         ).all()
 
         status_counts = {}

@@ -276,7 +276,6 @@ def listar_sla_andamento():
             "details": str(e)
         }), 500
 
-
 # Rota oficial funcional
 '''@dashboard_bp.route('/ChamadosSuporte/contagem_mes_atual', methods=['POST'])
 def contar_chamados_mes_atual():
@@ -678,7 +677,7 @@ def chamados_abertos_vs_resolvidos():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-@dashboard_bp.route('/ChamadosSuporte/sla_andamento_grupos', methods=['POST'])
+'''@dashboard_bp.route('/ChamadosSuporte/sla_andamento_grupos', methods=['POST'])
 def listar_sla_andamento_grupos():
     token_response = token_desk()
     url = endpoints.LISTA_CHAMADOS_SUPORTE
@@ -755,14 +754,14 @@ def listar_sla_andamento_grupos():
                 if c.get("NomePrioridade") not in prioridades_ignorar
             ]
 
-            '''prioridades_ignorar = {"5 - Planejada", "4 - Baixa"}
+            prioridades_ignorar = {"5 - Planejada", "4 - Baixa"}
                 chamados_grupos = [
                     c for c in chamados_grupos
                     if not (
                         c.get("NomeGrupo", "").upper() == "DEV" and
                         c.get("NomePrioridade") in prioridades_ignorar
                     )
-                ]'''
+                ]
 
             hoje = datetime.now()
             primeiro_dia_mes = hoje.replace(day=1)
@@ -840,5 +839,59 @@ def listar_sla_andamento_grupos():
             "status": "error",
             "message": "Erro ao conectar com o servidor",
             "details": str(e)
-        }), 500
+        }), 500'''
+
+@dashboard_bp.route('/ChamadosSuporte/sla_andamento_grupos', methods=['POST'])
+def listar_sla_andamento_grupos():
+    grupos_desejados = ['INFOSEC - N2', 'DEV - N2', 'NOC - N2', 'CSM']
+    mes_referencia_atual = datetime.now().strftime('%Y-%m')
+
+    # Consulta ajustada conforme a SQL desejada
+    chamados = Chamado.query.filter(
+        Chamado.nome_status.notin_(['Resolvido', 'Cancelado']),
+        Chamado.nome_prioridade.notin_(['5 - Planejada', '4 - Baixa']),
+        db.or_(
+            Chamado.nome_grupo.ilike('%DEV - N2%'),
+            Chamado.nome_grupo.ilike('%INFOSEC - N2%'),
+            Chamado.nome_grupo.ilike('%CSM%'),
+            Chamado.nome_grupo.ilike('%NOC - N2%')
+        ),
+        Chamado.sla_atendimento.in_(['S', 'N']),
+        Chamado.sla_resolucao.in_(['S', 'N']),
+    ).all()
+
+    # Contadores e listas de códigos
+    sla1_expirado = sla1_nao_expirado = 0
+    sla2_expirado = sla2_nao_expirado = 0
+    codigos_sla1 = []
+    codigos_sla2 = []
+
+    for chamado in chamados:
+        if chamado.sla_atendimento == "S":
+            sla1_expirado += 1
+            codigos_sla1.append(chamado.cod_chamado)
+        elif chamado.sla_atendimento == "N":
+            sla1_nao_expirado += 1
+
+        if chamado.sla_resolucao == "S":
+            sla2_expirado += 1
+            codigos_sla2.append(chamado.cod_chamado)
+        elif chamado.sla_resolucao == "N":
+            sla2_nao_expirado += 1
+
+    return jsonify({
+        "status": "success",
+        "sla1_expirado": sla1_expirado,
+        "sla1_nao_expirado": sla1_nao_expirado,
+        "sla2_expirado": sla2_expirado,
+        "sla2_nao_expirado": sla2_nao_expirado,
+        "codigos_sla1": codigos_sla1,
+        "codigos_sla2": codigos_sla2,
+        "total": len(chamados),
+        "grupos": grupos_desejados,
+        "mes_referencia": mes_referencia_atual
+    })
+
+
+
 

@@ -64,7 +64,7 @@ def login():
 
             # Redireciona para a página inicial (home)
             #return redirect(url_for('home_bp.render_admin'))  # Redireciona para a rota 'home'
-            return render_template('admin.html')
+            return render_template('insights.html')
         else:
             print("Credenciais inválidas ou senha incorreta.")
             flash('Credenciais inválidas. Tente novamente.', 'danger')  # Exibe mensagem de erro
