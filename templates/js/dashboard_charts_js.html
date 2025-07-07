@@ -544,26 +544,25 @@ window.addEventListener('load', carregarAgentesOnline);
 <!-- Bloco que me traz os SLAs expirados filtrados por grupos-->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const modalElement = document.getElementById('modalChamadosGrupos'); // novo ID aqui!
+    const modalElement = document.getElementById('modalChamadosGrupos');
     const listaChamados = document.getElementById('listaChamadosGrupos');
     const modalInstance = new bootstrap.Modal(modalElement);
 
-    // Quando o modal for aberto, coloca o foco no botão de fechar para acessibilidade
     modalElement.addEventListener('shown.bs.modal', () => {
         const botaoFechar = modalElement.querySelector('button.btn-close');
         if (botaoFechar) botaoFechar.focus();
     });
 
-    function criarSlaGrupoChart(ctx, label, naoExpirado, expirado, codigosExpirados) {
-        const total = naoExpirado + expirado;
+    function criarSlaGrupoChart(ctx, label, naoExpirado, quaseEstourando, expirado, codigosCriticos, codigosExpirados) {
+        const total = naoExpirado + quaseEstourando + expirado;
         return new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Dentro do Prazo', 'Expirado'],
+                labels: ['Dentro do Prazo', 'Quase Estourando', 'Expirado'],
                 datasets: [{
                     label: label,
-                    data: [naoExpirado, expirado],
-                    backgroundColor: ['#007bffcc', '#dc3545cc'],
+                    data: [naoExpirado, quaseEstourando, expirado],
+                    backgroundColor: ['#007bffcc', '#ffc107cc', '#dc3545cc'],
                     borderRadius: 6,
                     barThickness: 30
                 }]
@@ -596,9 +595,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 onClick: (evt, elements) => {
                     if (elements.length > 0) {
                         const idx = elements[0].index;
-                        if (idx === 1 && codigosExpirados.length > 0) {
+                        let codigos = [];
+
+                        if (idx === 1 && codigosCriticos.length > 0) { // Quase Estourando
+                            codigos = codigosCriticos;
+                        } else if (idx === 2 && codigosExpirados.length > 0) { // Expirado
+                            codigos = codigosExpirados;
+                        }
+
+                        if (codigos.length > 0) {
                             listaChamados.innerHTML = '';
-                            codigosExpirados.forEach(codigo => {
+                            codigos.forEach(codigo => {
                                 const li = document.createElement('li');
                                 li.style.marginBottom = '8px';
 
@@ -611,7 +618,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 li.appendChild(link);
                                 listaChamados.appendChild(li);
                             });
-                            modalInstance.show(); // mostra o modal corretamente
+                            modalInstance.show();
                         }
                     }
                 }
@@ -628,14 +635,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById('slaGrupoChart').getContext('2d'),
                     'SLA - Atendimento',
                     data.sla1_nao_expirado,
+                    data.sla1_quase_estourando || 0,
                     data.sla1_expirado,
+                    data.codigos_sla1_critico || [],
                     data.codigos_sla1 || []
                 );
                 criarSlaGrupoChart(
                     document.getElementById('slaGrupoChart2').getContext('2d'),
                     'SLA - Resolução',
                     data.sla2_nao_expirado,
+                    data.sla2_quase_estourando || 0,
                     data.sla2_expirado,
+                    data.codigos_sla2_critico || [],
                     data.codigos_sla2 || []
                 );
             } else {
@@ -645,6 +656,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(e => console.error('Erro na requisição SLA por grupo:', e));
 });
 </script>
+
 
 <!-- Bloco que recarrega a página a cada 5 minutos-->
 <script>
