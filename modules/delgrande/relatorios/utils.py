@@ -757,7 +757,9 @@ def importar_chamados():
                     existente.solicitante_email = chamado.get('SolicitanteEmail')
                     existente.nome_prioridade = chamado.get('NomePrioridade'),
                     existente.cod_tipo_ocorrencia = chamado.get('CodTipoOcorrencia'),
-                    existente.cod_sub_categoria = chamado.get('CodSubCategoria')
+                    existente.cod_sub_categoria = chamado.get('CodSubCategoria'),
+                    existente.restante_p_atendimento = chamado.get('TempoRestantePrimeiroAtendimento'),
+                    existente.restante_s_atendimento = chamado.get('TempoRestanteSegundoAtendimento'),
                     existente.data_finalizacao = data_finalizacao
                     existente.mes_referencia = f"{data_criacao.year}-{data_criacao.month:02d}"
                     existente.data_importacao = datetime.now()
@@ -777,6 +779,8 @@ def importar_chamados():
                         cod_tipo_ocorrencia = chamado.get('CodTipoOcorrencia'),
                         solicitante_email = chamado.get('SolicitanteEmail'),
                         nome_prioridade = chamado.get('NomePrioridade'),
+                        restante_p_atendimento = chamado.get('TempoRestantePrimeiroAtendimento'),
+                        restante_s_atendimento = chamado.get('TempoRestanteSegundoAtendimento'),
                         data_finalizacao=data_finalizacao,
                         mes_referencia=f"{data_criacao.year}-{data_criacao.month:02d}",
                         data_importacao=datetime.now()

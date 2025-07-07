@@ -218,12 +218,20 @@ def listar_sla_andamento():
             "details": str(e)
         }), 500'''
 
+def parse_tempo(s):
+    try:
+        negativo = s.startswith('-')
+        h, m, s = map(int, s.replace('-', '').split(':'))
+        delta = timedelta(hours=h, minutes=m, seconds=s)
+        return -delta if negativo else delta
+    except:
+        return None
+
 @dashboard_bp.route('/ChamadosSuporte/sla_andamento', methods=['POST'])
 def listar_sla_andamento():
     try:
         hoje = datetime.now()
 
-        # Filtra chamados do mês atual, em andamento (status != Resolvido ou Cancelado)
         chamados = Chamado.query.filter(
             db.extract('month', Chamado.data_criacao) == hoje.month,
             db.extract('year', Chamado.data_criacao) == hoje.year,
@@ -235,36 +243,64 @@ def listar_sla_andamento():
         sla1_nao_expirado = 0
         sla2_expirado = 0
         sla2_nao_expirado = 0
+        sla1_quase_estourando = 0
+        sla2_quase_estourando = 0
 
         codigos_sla1 = []
         codigos_sla2 = []
+        codigos_sla1_critico = []
+        codigos_sla2_critico = []
 
         for chamado in chamados:
             sla1 = (chamado.sla_atendimento or "").strip().upper()
             sla2 = (chamado.sla_resolucao or "").strip().upper()
+            restante1_raw = (chamado.restante_p_atendimento or "").strip()
+            restante2_raw = (chamado.restante_s_atendimento or "").strip()
+            restante1 = parse_tempo(restante1_raw)
+            restante2 = parse_tempo(restante2_raw)
             cod = chamado.cod_chamado
 
+            # SLA 1 - Atendimento
             if sla1 == "S":
                 sla1_expirado += 1
                 codigos_sla1.append(cod)
-            elif sla1 == "N":
-                sla1_nao_expirado += 1
+            elif sla1 == "N" and restante1 is not None:
+                if timedelta(minutes=0) < restante1 <= timedelta(minutes=5):
+                    sla1_quase_estourando += 1
+                    codigos_sla1_critico.append(cod)
+                elif restante1 > timedelta(minutes=10):
+                    sla1_nao_expirado += 1
+                else:
+                    sla1_expirado += 1
+                    codigos_sla1.append(cod)
 
+            # SLA 2 - Resolução
             if sla2 == "S":
                 sla2_expirado += 1
                 codigos_sla2.append(cod)
-            elif sla2 == "N":
-                sla2_nao_expirado += 1
+            elif sla2 == "N" and restante2 is not None:
+                if timedelta(minutes=0) < restante2 <= timedelta(minutes=5):
+                    sla2_quase_estourando += 1
+                    codigos_sla2_critico.append(cod)
+                elif restante2 > timedelta(minutes=10):
+                    sla2_nao_expirado += 1
+                else:
+                    sla2_expirado += 1
+                    codigos_sla2.append(cod)
 
         return jsonify({
             "status": "success",
             "sla1_expirado": sla1_expirado,
             "sla1_nao_expirado": sla1_nao_expirado,
+            "sla1_quase_estourando": sla1_quase_estourando,
             "sla2_expirado": sla2_expirado,
             "sla2_nao_expirado": sla2_nao_expirado,
+            "sla2_quase_estourando": sla2_quase_estourando,
             "total": len(chamados),
             "codigos_sla1": codigos_sla1,
             "codigos_sla2": codigos_sla2,
+            "codigos_sla1_critico": codigos_sla1_critico,
+            "codigos_sla2_critico": codigos_sla2_critico,
             "grupo_filtrado": "SUPORTE",
             "mes_referencia": hoje.strftime("%Y-%m")
         })
@@ -275,6 +311,7 @@ def listar_sla_andamento():
             "message": "Erro ao consultar os dados",
             "details": str(e)
         }), 500
+
 
 # Rota oficial funcional
 '''@dashboard_bp.route('/ChamadosSuporte/contagem_mes_atual', methods=['POST'])
@@ -841,12 +878,12 @@ def listar_sla_andamento_grupos():
             "details": str(e)
         }), 500'''
 
+
 @dashboard_bp.route('/ChamadosSuporte/sla_andamento_grupos', methods=['POST'])
 def listar_sla_andamento_grupos():
     grupos_desejados = ['INFOSEC - N2', 'DEV - N2', 'NOC - N2', 'CSM']
     mes_referencia_atual = datetime.now().strftime('%Y-%m')
 
-    # Consulta ajustada conforme a SQL desejada
     chamados = Chamado.query.filter(
         Chamado.nome_status.notin_(['Resolvido', 'Cancelado']),
         Chamado.nome_prioridade.notin_(['5 - Planejada', '4 - Baixa']),
@@ -860,37 +897,68 @@ def listar_sla_andamento_grupos():
         Chamado.sla_resolucao.in_(['S', 'N']),
     ).all()
 
-    # Contadores e listas de códigos
-    sla1_expirado = sla1_nao_expirado = 0
-    sla2_expirado = sla2_nao_expirado = 0
+    # Contadores
+    sla1_expirado = sla1_nao_expirado = sla1_quase_estourando = 0
+    sla2_expirado = sla2_nao_expirado = sla2_quase_estourando = 0
+
+    # Listas de códigos
     codigos_sla1 = []
     codigos_sla2 = []
+    codigos_sla1_critico = []
+    codigos_sla2_critico = []
 
     for chamado in chamados:
+        restante1_raw = (chamado.restante_p_atendimento or "").strip()
+        restante2_raw = (chamado.restante_s_atendimento or "").strip()
+        restante1 = parse_tempo(restante1_raw)
+        restante2 = parse_tempo(restante2_raw)
+        cod = chamado.cod_chamado
+
+        # SLA Atendimento
         if chamado.sla_atendimento == "S":
             sla1_expirado += 1
-            codigos_sla1.append(chamado.cod_chamado)
-        elif chamado.sla_atendimento == "N":
-            sla1_nao_expirado += 1
+            codigos_sla1.append(cod)
+        elif chamado.sla_atendimento == "N" and restante1 is not None:
+            if timedelta(minutes=0) < restante1 <= timedelta(minutes=10):
+                sla1_quase_estourando += 1
+                codigos_sla1_critico.append(cod)
+            elif restante1 > timedelta(minutes=10):
+                sla1_nao_expirado += 1
+            else:
+                sla1_expirado += 1
+                codigos_sla1.append(cod)
 
+        # SLA Resolução
         if chamado.sla_resolucao == "S":
             sla2_expirado += 1
-            codigos_sla2.append(chamado.cod_chamado)
-        elif chamado.sla_resolucao == "N":
-            sla2_nao_expirado += 1
+            codigos_sla2.append(cod)
+        elif chamado.sla_resolucao == "N" and restante2 is not None:
+            if timedelta(minutes=0) < restante2 <= timedelta(minutes=10):
+                sla2_quase_estourando += 1
+                codigos_sla2_critico.append(cod)
+            elif restante2 > timedelta(minutes=10):
+                sla2_nao_expirado += 1
+            else:
+                sla2_expirado += 1
+                codigos_sla2.append(cod)
 
     return jsonify({
         "status": "success",
         "sla1_expirado": sla1_expirado,
         "sla1_nao_expirado": sla1_nao_expirado,
+        "sla1_quase_estourando": sla1_quase_estourando,
         "sla2_expirado": sla2_expirado,
         "sla2_nao_expirado": sla2_nao_expirado,
+        "sla2_quase_estourando": sla2_quase_estourando,
         "codigos_sla1": codigos_sla1,
         "codigos_sla2": codigos_sla2,
+        "codigos_sla1_critico": codigos_sla1_critico,
+        "codigos_sla2_critico": codigos_sla2_critico,
         "total": len(chamados),
         "grupos": grupos_desejados,
         "mes_referencia": mes_referencia_atual
     })
+
 
 
 

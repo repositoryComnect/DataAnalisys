@@ -169,8 +169,9 @@ def importar_ligacoes_atendidas():
             "message": "Erro inesperado",
             "details": str(e)
         }), 500
-    
-@admin_bp.route('/get/operadores', methods=['GET'])
+
+# Rota que   
+'''@admin_bp.route('/get/operadores', methods=['GET'])
 def get_operadores():
     try:
         # Consulta apenas operadores do grupo 'SUPORTE B2B - COMNECT'
@@ -180,9 +181,11 @@ def get_operadores():
             Chamado.operador.isnot(None),
             Chamado.operador != '',
             Chamado.operador != 'Fabio',
+            Chamado.operador != 'API',
             Chamado.operador != 'Caio',
             Chamado.operador != 'Paulo',
             Chamado.operador != 'Luciano',
+            Chamado.operador != 'Alexandre',
             Chamado.operador != 'Chrysthyanne',
             Chamado.operador != 'Suporte',
             Chamado.nome_grupo == 'SUPORTE COMNEcT - N1'
@@ -203,7 +206,7 @@ def get_operadores():
         return jsonify({
             "status": "error",
             "message": str(e)
-        }), 500
+        }), 500'''
 
 # Rota que traz total de chamados abertos no período de uma semana
 @admin_bp.route('/ChamadosSuporteSemanal', methods=['POST'])
@@ -516,7 +519,7 @@ def chamados_por_operador_periodo():
 def estatisticas_chamados_periodos():
     try:
         dados = request.get_json(force=True)
-        dias = int(dados.get("dias", 1))  # padrão: últimos 7 dias
+        dias = int(dados.get("dias", 1))  
         data_limite = datetime.now() - timedelta(days=dias)
 
         chamados_abertos = db.session.query(

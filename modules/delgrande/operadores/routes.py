@@ -148,12 +148,13 @@ def performance_colaboradores_render():
     nome = data.get('nome')
     print(nome)
 
-    if not nome:
-        return jsonify({"status": "error", "message": "Nome do operador não fornecido"}), 400
+    '''if not nome:
+        return jsonify({"status": "error", "message": "Nome do operador não fornecido"}), 400'''
 
     operador_id = OPERADORES_IDS.get(nome)
     if not operador_id:
-        return jsonify({"status": "error", "message": f"Operador '{nome}' não encontrado"}), 404
+        operador_id = ""
+        #return jsonify({"status": "error", "message": f"Operador '{nome}' não encontrado"}), 404
 
     # Define a data (ontem)
     hoje = datetime.now().date()

@@ -134,6 +134,8 @@ class Chamado(db.Model):
     cod_status_atual = db.Column(db.String(10))
     mes_referencia = db.Column(db.String(7), nullable=False)
     data_importacao = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    restante_p_atendimento = db.Column(db.String(10))
+    restante_s_atendimento = db.Column(db.String(10))
     tipo_vinculo = db.Column(db.String(10))  # Valores: 'pai', 'filho', None
 
 
