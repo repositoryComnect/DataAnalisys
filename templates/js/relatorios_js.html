@@ -1,0 +1,62 @@
+ <!-- Preencher operadores dinamicamente -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/relatorios/getOperadores')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('operador');
+                data.forEach(nome => {
+                    const option = document.createElement('option');
+                    option.value = nome;
+                    option.textContent = nome;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Erro ao carregar operadores:', error));
+    });
+    </script>
+
+    <!-- Gerar PDF -->
+    <script>
+    function gerarPDF() {
+        const data_inicio = document.getElementById("data_inicio").value;
+        const data_final = document.getElementById("data_final").value;
+        const operador = document.getElementById("operador").value;
+
+        if (!data_inicio || !data_final || !operador) {
+            alert("Por favor, preencha Data Início, Data Fim e selecione um Operador.");
+            return;
+        }
+
+        const formData = new URLSearchParams();
+        formData.append('data_inicio', data_inicio);
+        formData.append('data_final', data_final);
+        formData.append('operador', operador);
+
+        fetch('/relatorios/extrairRelatorios', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Erro ao gerar PDF");
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const filename = `relatorio_${operador}_${new Date().toISOString().slice(0,10)}.pdf`;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        })
+        .catch(error => {
+            console.error("Erro ao gerar PDF:", error);
+            alert("Falha ao gerar relatório em PDF.");
+        });
+    }
+    </script>

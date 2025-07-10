@@ -1,0 +1,71 @@
+body {
+      background-color: #1a1a24;
+      color: #e0e0e0;
+    }
+
+    .card {
+      background-color: #484747cc;
+      border: 1px solid #494953;
+      color: #ffffff;
+    }
+
+    .card-header {
+      background-color: #303039;
+      color: #ffffff;
+    }
+
+    h2, h6, p, span {
+      color: #ffffff;
+    }
+
+    canvas {
+      background-color: #484747cc;
+    }
+
+    .btn-outline-primary {
+      border-color: #4e73df;
+      color: #4e73df;
+    }
+
+    .btn-outline-primary:hover, .btn-outline-primary.active {
+      background-color: #4e73df;
+      color: #fff;
+    }
+
+    #botoes-periodo {
+    padding: 10px 0;
+    overflow-x: auto;
+    white-space: nowrap;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .filtro-btn {
+    margin-right: 8px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    border-radius: 5px;
+    padding: 5px 15px;
+    font-size: 0.9rem;
+    border: 1px solid #6c757d;
+    background-color: transparent;
+    color: #e0e0e0;
+  }
+
+  .filtro-btn:hover {
+    transform: translateY(-2px);
+    background-color: #495057;
+    color: #fff;
+  }
+
+  .filtro-btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+  }
+
+
+  

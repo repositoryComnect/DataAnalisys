@@ -1,0 +1,45 @@
+.card-header {
+            font-weight: bold;
+        }
+        .status-card {
+            border-left: 4px solid #0d6efd;
+        }
+        .btn-registro {
+            background-color: #0d6efd;
+            color: white;
+            font-weight: bold;
+        }
+
+/* Estilos para os botões de operadores */
+#botoes-operadores {
+    padding: 10px 0;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.operador-btn {
+    margin-right: 8px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    border-radius: 5px;
+    padding: 5px 15px;
+    font-size: 0.9rem;
+}
+
+.operador-btn:hover {
+    transform: translateY(-2px);
+}
+
+.operador-btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+#botoes-operadores {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center;     /* Centraliza verticalmente */
+    gap: 0.5rem;            /* Espaço entre os botões */
+}
