@@ -16,7 +16,7 @@ admin_bp = Blueprint('admin_bp', __name__, url_prefix='/admin')
 def relacao_admin_abertos_vs_resolvido_periodo():
     try:
         dados = request.get_json(force=True)
-        dias = int(dados.get("dias", 7))
+        dias = int(dados.get("dias", 1))
         data_limite = datetime.now() - timedelta(days=dias)
 
         total_por_dia = {}
@@ -30,7 +30,7 @@ def relacao_admin_abertos_vs_resolvido_periodo():
         ).group_by('dia').all()
 
         for dia, total in resultados_abertos:
-            total_por_dia[dia] = total  # salva como datetime.date
+            total_por_dia[dia] = total
 
         resultados_resolvidos = db.session.query(
             func.date(Chamado.data_criacao).label('dia'),
@@ -41,12 +41,14 @@ def relacao_admin_abertos_vs_resolvido_periodo():
         ).group_by('dia').all()
 
         for dia, total in resultados_resolvidos:
-            resolvidos_por_dia[dia] = total  # salva como datetime.date
+            resolvidos_por_dia[dia] = total
 
-        # União ordenada de datas (datetime.date)
         todos_os_dias = sorted(set(total_por_dia.keys()).union(resolvidos_por_dia.keys()))
 
-        # Retorno com datas formatadas
+        total_abertos = sum(total_por_dia.values())
+        total_resolvidos = sum(resolvidos_por_dia.values())
+        diferenca = total_abertos - total_resolvidos
+
         return jsonify({
             'status': 'success',
             'labels': [dia.strftime('%d/%m') for dia in todos_os_dias],
@@ -63,11 +65,17 @@ def relacao_admin_abertos_vs_resolvido_periodo():
                     'borderColor': 'rgba(75, 192, 75, 0.7)',
                     'fill': False
                 }
-            ]
+            ],
+            'resumo': {
+                'abertos': total_abertos,
+                'resolvidos': total_resolvidos,
+                'diferenca': diferenca
+            }
         })
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 @admin_bp.route('/v2/report/attendants_performance', methods=['POST'])
 def importar_ligacoes_atendidas():

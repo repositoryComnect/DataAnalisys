@@ -4,7 +4,7 @@ from modules.deskmanager.authenticate.routes import token_desk
 from datetime import datetime, timedelta
 from application.models import Chamado, db, Categoria, PesquisaSatisfacao
 from collections import Counter
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, or_
 import re
 
 
@@ -387,19 +387,29 @@ def listar_p_satisfacao():
         PesquisaSatisfacao.data_resposta >= data_limite
     ).scalar()
 
-    # Total com alternativa preenchida (não nula e não vazia)
+    # Total de pesquisas respondidas (com alternativa OU dissertativa preenchida)
     respondidas = db.session.query(func.count()).filter(
         and_(
             PesquisaSatisfacao.data_resposta >= data_limite,
-            PesquisaSatisfacao.alternativa.isnot(None),
-            func.length(PesquisaSatisfacao.alternativa) > 0
+            or_(
+                and_(
+                    PesquisaSatisfacao.alternativa.isnot(None),
+                    func.length(PesquisaSatisfacao.alternativa) > 0
+                ),
+                and_(
+                    PesquisaSatisfacao.resposta_dissertativa.isnot(None),
+                    func.length(PesquisaSatisfacao.resposta_dissertativa) > 0
+                )
+            )
         )
     ).scalar()
 
+    # Total não respondidas
     nao_respondidas = total_pesquisas - respondidas
 
+    # Cálculo dos percentuais
     percentual_respondidas = round((respondidas / total_pesquisas) * 100, 2) if total_pesquisas else 0
-    percentual_nao_respondidas = 100 - percentual_respondidas if total_pesquisas else 0
+    percentual_nao_respondidas = round(100 - percentual_respondidas, 2) if total_pesquisas else 0
 
     return jsonify({
         "status": "success",
@@ -409,6 +419,70 @@ def listar_p_satisfacao():
         "percentual_respondidas": percentual_respondidas,
         "percentual_nao_respondidas": percentual_nao_respondidas
     })
+
+@insights_bp.route('/abertos_vs_admin_resolvido_periodo', methods=['POST'])
+def relacao_admin_abertos_vs_resolvido_periodo():
+    try:
+        dados = request.get_json(force=True)
+        dias = int(dados.get("dias", 1))
+        data_limite = datetime.now() - timedelta(days=dias)
+
+        total_por_dia = {}
+        resolvidos_por_dia = {}
+
+        resultados_abertos = db.session.query(
+            func.date(Chamado.data_criacao).label('dia'),
+            func.count(Chamado.id)
+        ).filter(
+            Chamado.data_criacao >= data_limite
+        ).group_by('dia').all()
+
+        for dia, total in resultados_abertos:
+            total_por_dia[dia] = total
+
+        resultados_resolvidos = db.session.query(
+            func.date(Chamado.data_criacao).label('dia'),
+            func.count(Chamado.id)
+        ).filter(
+            Chamado.data_criacao >= data_limite,
+            Chamado.nome_status == 'Resolvido'
+        ).group_by('dia').all()
+
+        for dia, total in resultados_resolvidos:
+            resolvidos_por_dia[dia] = total
+
+        todos_os_dias = sorted(set(total_por_dia.keys()).union(resolvidos_por_dia.keys()))
+
+        total_abertos = sum(total_por_dia.values())
+        total_resolvidos = sum(resolvidos_por_dia.values())
+        diferenca = total_abertos - total_resolvidos
+
+        return jsonify({
+            'status': 'success',
+            'labels': [dia.strftime('%d/%m') for dia in todos_os_dias],
+            'datasets': [
+                {
+                    'label': 'Total de Chamados Abertos',
+                    'data': [total_por_dia.get(dia, 0) for dia in todos_os_dias],
+                    'borderColor': 'rgba(255, 99, 132, 0.7)',
+                    'fill': False
+                },
+                {
+                    'label': 'Chamados Resolvidos',
+                    'data': [resolvidos_por_dia.get(dia, 0) for dia in todos_os_dias],
+                    'borderColor': 'rgba(75, 192, 75, 0.7)',
+                    'fill': False
+                }
+            ],
+            'resumo': {
+                'abertos': total_abertos,
+                'resolvidos': total_resolvidos,
+                'diferenca': diferenca
+            }
+        })
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 # Rota traz os chamados abertos atualmente
 '''@insights_bp.route('/ChamadosEmAbertoSuporte', methods=['POST'])

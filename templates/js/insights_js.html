@@ -505,85 +505,90 @@ function carregarTopTipos(dias = 1) {
 }
 </script>
 
-<!--Script que traz os dados de Abertos vs Resolvidos-->
+<!-- Bloco que traz a relação dos chamados abertos e resolvidos-->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const botoesFiltro = document.querySelectorAll(".filtro-btn");
-
-    // Inicializa gráfico global para poder destruí-lo depois
-    let graficoAbertosResolvidos = null;
-
-    function atualizarGrafico(dias) {
-        fetch('/admin/abertos_vs_admin_resolvido_periodo', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ dias: dias })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === "success") {
-                const ctx = document.getElementById('LinhaAbertosResolvidosAdminChart').getContext('2d');
-                if (graficoAbertosResolvidos) {
-                    graficoAbertosResolvidos.destroy();
-                }
-                graficoAbertosResolvidos = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.labels,
-                        datasets: data.datasets
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                labels: { color: '#fff' }
-                            },
-                            tooltip: {
-                                titleColor: '#fff',
-                                bodyColor: '#fff',
-                                backgroundColor: 'rgba(0,0,0,0.7)'
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { color: '#fff' },
-                                grid: { color: 'rgba(255,255,255,0.1)' }
-                            },
-                            x: {
-                                ticks: { color: '#fff' },
-                                grid: { color: 'rgba(255,255,255,0.1)' }
-                            }
-                        }
-                    }
-                });
-            } else {
-                console.error("Erro ao carregar gráfico:", data.message);
-            }
-        })
-        .catch(error => {
-            console.error("Erro de conexão ao carregar gráfico:", error);
-        });
-    }
-
-    botoesFiltro.forEach(botao => {
-        botao.addEventListener("click", function () {
-            botoesFiltro.forEach(btn => btn.classList.remove("active"));
-            this.classList.add("active");
-
-            const dias = this.getAttribute("data-dias");
-
-            // Apenas atualiza o gráfico
-            atualizarGrafico(dias);
-        });
+  // Listener para botões de filtro
+  document.querySelectorAll('.filtro-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const dias = parseInt(this.getAttribute('data-dias'));
+      carregarAbertosResolvidos(dias);
     });
+  });
 
-    // Filtro padrão de 7 dias ao carregar a página
-    document.querySelector('.filtro-btn[data-dias="7"]').click();
+  // Gráfico instância global para poder destruir ao atualizar
+  let adminChartInstance = null;
+
+  // Função que busca e exibe os dados
+  function carregarAbertosResolvidos(dias = 1) {
+    console.log('Carregando abertos x resolvidos com dias =', dias);
+
+    fetch('/insights/abertos_vs_admin_resolvido_periodo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dias: dias })  // agora usa o valor dinâmico corretamente
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success") {
+        const ctx = document.getElementById('LinhaAbertosResolvidosAdminChart').getContext('2d');
+
+        // Destroi gráfico anterior se existir
+        if (adminChartInstance) {
+          adminChartInstance.destroy();
+        }
+
+        adminChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.labels,
+            datasets: data.datasets
+          },
+          options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            stacked: false,
+            plugins: {
+              title: { display: false },
+              legend: {
+                labels: { color: '#fff' }
+              },
+              tooltip: {
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                backgroundColor: 'rgba(0,0,0,0.7)'
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: '#fff' },
+                grid: { display: false }
+              },
+              y: {
+                beginAtZero: true,
+                ticks: { color: '#fff', precision: 0 },
+                grid: { color: 'rgba(255,255,255,0.1)' }
+              }
+            }
+          }
+        });
+
+        // Atualiza os totais
+        document.getElementById("adminTotalAbertos").textContent = data.resumo.abertos;
+        document.getElementById("adminTotalResolvidos").textContent = data.resumo.resolvidos;
+        document.getElementById("adminDiferenca").textContent = data.resumo.diferenca;
+      } else {
+        console.error("Erro ao carregar dados:", data.message);
+      }
+    })
+    .catch(error => console.error("Erro de conexão:", error));
+  }
+
+  // Carregamento inicial com 7 dias
+  carregarAbertosResolvidos(1);
 });
 </script>
+
 
 <!--Script que traz os dados de Abertos vs Status-->
 <script>

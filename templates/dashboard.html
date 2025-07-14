@@ -37,13 +37,25 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header text-center">Abertos vs Resolvidos <i class="bi bi-graph-up"></i></div>
-                <div class="card-body d-flex flex-column align-items-center" style="height: 280px;">
-                    <canvas id="LinhaAbertosResolvidosChart"></canvas>
-                </div>
-            </div>
+    <div class="card shadow-sm h-100">
+        <div class="card-header text-center">
+            Abertos vs Resolvidos <i class="bi bi-graph-up"></i>
         </div>
+        <div class="card-body d-flex flex-column align-items-center" style="height: 320px;">
+
+            <!-- Resumo acima do gráfico, tudo em linha -->
+            <div id="resumoAbertosResolvidos" class="text-white small d-flex justify-content-center gap-3">
+                <p class="mb-0"><strong>Total Abertos:</strong> <span id="totalAbertos">-</span></p>
+                <p class="mb-0"><strong>Total Resolvidos:</strong> <span id="totalResolvidos">-</span></p>
+                <p class="mb-0"><strong>Diferença:</strong> <span id="diferencaAbertosResolvidos">-</span></p>
+            </div>
+
+            <canvas id="LinhaAbertosResolvidosChart"></canvas>
+        </div>
+    </div>
+</div>
+
+
         
 
         <div class="col-md-4">

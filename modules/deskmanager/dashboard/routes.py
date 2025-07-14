@@ -312,7 +312,6 @@ def listar_sla_andamento():
             "details": str(e)
         }), 500
 
-
 # Rota oficial funcional
 '''@dashboard_bp.route('/ChamadosSuporte/contagem_mes_atual', methods=['POST'])
 def contar_chamados_mes_atual():
@@ -708,6 +707,11 @@ def chamados_abertos_vs_resolvidos():
                     'borderWidth': 2
                 }
             ],
+            'resumo': {
+                'total_abertos': sum(total_por_hora.values()),
+                'total_resolvidos': sum(resolvidos_por_hora.values()),
+                'diferenca': sum(total_por_hora.values()) - sum(resolvidos_por_hora.values())
+            },
             'data_referencia': hoje.strftime('%d/%m/%Y')
         })
 
@@ -877,7 +881,6 @@ def listar_sla_andamento_grupos():
             "message": "Erro ao conectar com o servidor",
             "details": str(e)
         }), 500'''
-
 
 @dashboard_bp.route('/ChamadosSuporte/sla_andamento_grupos', methods=['POST'])
 def listar_sla_andamento_grupos():

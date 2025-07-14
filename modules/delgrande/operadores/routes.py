@@ -5,7 +5,7 @@ from modules.delgrande.auth.utils import authenticate, authenticate_relatorio
 from application.models import Chamado
 from settings.endpoints import CREDENTIALS
 from datetime import datetime, timedelta
-from sqlalchemy import func, cast, Date, and_
+from sqlalchemy import func, cast, Date, and_, or_
 
 
 operadores_bp = Blueprint('operadores_bp', __name__, url_prefix='/operadores')
@@ -527,7 +527,7 @@ def chamados_telefone_vs_atendidas():
             "15": hoje - timedelta(days=15),
             "30": hoje - timedelta(days=30),
             "90": hoje - timedelta(days=90),
-            "180": hoje -  timedelta(days=180)
+            "180": hoje - timedelta(days=180)
         }
 
         data_inicial = periodos.get(dias_str, periodos["1"])
@@ -546,7 +546,6 @@ def chamados_telefone_vs_atendidas():
         ).filter(
             Chamado.cod_solicitacao == '000004',
             Chamado.operador == nome_operador,
-            #Chamado.nome_status != 'Cancelado',
             func.date(Chamado.data_criacao).in_(lista_dias)
         ).group_by(
             func.date(Chamado.data_criacao)
@@ -570,6 +569,11 @@ def chamados_telefone_vs_atendidas():
         atendimentos_por_dia_map = {data: total for data, total in atendimentos_result}
         atendimentos_por_dia = [atendimentos_por_dia_map.get(dia, 0) for dia in lista_dias]
 
+        # === TOTALIZAÇÃO E DIFERENÇA
+        total_tickets = sum(dados_chamados)
+        total_ligacoes = sum(atendimentos_por_dia)
+        diferenca = total_tickets - total_ligacoes
+
         return jsonify({
             'status': 'success',
             'data': {
@@ -591,12 +595,18 @@ def chamados_telefone_vs_atendidas():
                         'fill': False,
                         'tension': 0.3
                     }
-                ]
+                ],
+                'resumo': {
+                    'total_tickets': total_tickets,
+                    'total_ligacoes': total_ligacoes,
+                    'diferenca': diferenca
+                }
             }
         })
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 @operadores_bp.route('/GetSlaOperador', methods=['POST'])
 def get_sla_operador():
@@ -649,17 +659,25 @@ def listar_p_satisfacao():
     # Total de pesquisas do operador no período
     total_pesquisas = db.session.query(func.count()).filter(*filtro_base).scalar()
 
-    # Total com alternativa respondida
+    # Total de respondidas (alternativa OU dissertativa)
     respondidas = db.session.query(func.count()).filter(
         *filtro_base,
-        PesquisaSatisfacao.alternativa.isnot(None),
-        func.length(PesquisaSatisfacao.alternativa) > 0
+        or_(
+            and_(
+                PesquisaSatisfacao.alternativa.isnot(None),
+                func.length(PesquisaSatisfacao.alternativa) > 0
+            ),
+            and_(
+                PesquisaSatisfacao.resposta_dissertativa.isnot(None),
+                func.length(PesquisaSatisfacao.resposta_dissertativa) > 0
+            )
+        )
     ).scalar()
 
     nao_respondidas = total_pesquisas - respondidas
 
     percentual_respondidas = round((respondidas / total_pesquisas) * 100, 2) if total_pesquisas else 0
-    percentual_nao_respondidas = 100 - percentual_respondidas if total_pesquisas else 0
+    percentual_nao_respondidas = round(100 - percentual_respondidas, 2) if total_pesquisas else 0
 
     # Lista das alternativas preenchidas para esse operador
     alternativas_respondidas = db.session.query(PesquisaSatisfacao.alternativa).filter(
@@ -667,19 +685,14 @@ def listar_p_satisfacao():
         PesquisaSatisfacao.alternativa.isnot(None),
         func.length(PesquisaSatisfacao.alternativa) > 0
     ).all()
-
     lista_alternativas = [alt[0] for alt in alternativas_respondidas]
 
-    # Adicione isso antes do return
+    # Lista de comentários dissertativos
     comentarios = db.session.query(PesquisaSatisfacao.resposta_dissertativa).filter(
-        and_(
-            PesquisaSatisfacao.data_resposta >= data_limite,
-            PesquisaSatisfacao.operador.ilike(f"{nome}%"),
-            PesquisaSatisfacao.resposta_dissertativa.isnot(None),
-            func.length(PesquisaSatisfacao.resposta_dissertativa) > 0
-        )
+        *filtro_base,
+        PesquisaSatisfacao.resposta_dissertativa.isnot(None),
+        func.length(PesquisaSatisfacao.resposta_dissertativa) > 0
     ).all()
-
     lista_comentarios = [c[0] for c in comentarios]
 
     return jsonify({

@@ -157,7 +157,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (result.status === "success") {
                 const labels = result.data.labels;
                 const datasets = result.data.datasets;
+                const resumo = result.data.resumo;
 
+                // Atualizar gráfico
                 if (chartInstance) chartInstance.destroy();
 
                 chartInstance = new Chart(ctx, {
@@ -194,6 +196,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                     }
                 });
+
+                // Atualizar contadores de resumo
+                document.getElementById("totalTickets").textContent = resumo.total_tickets ?? "-";
+                document.getElementById("totalLigacoes").textContent = resumo.total_ligacoes ?? "-";
+                document.getElementById("diferencaChamados").textContent = resumo.diferenca ?? "-";
             } else {
                 console.error("Erro:", result.message);
             }
@@ -218,6 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarLigaçõesVsTickets(1);
 });
 </script>
+
 
 
 <script>

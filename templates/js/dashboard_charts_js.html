@@ -187,65 +187,73 @@
 
 <!-- Bloco que me traz os chamados abertos VS resolvidos no mês-->
 <script>
-        fetch('/dashboard/ChamadosSuporte/abertos_vs_resolvidos', { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    const ctx = document.getElementById('LinhaAbertosResolvidosChart').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: data.labels,
-                            datasets: data.datasets
+    fetch('/dashboard/ChamadosSuporte/abertos_vs_resolvidos', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                const ctx = document.getElementById('LinhaAbertosResolvidosChart').getContext('2d');
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: data.datasets
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
                         },
-                        options: {
-                            responsive: true,
-                            interaction: {
-                                mode: 'index',
-                                intersect: false,
+                        stacked: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                color: '#fff'
                             },
-                            stacked: false,
-                            plugins: {
-                                title: {
-                                    display: true,
-                                    color: '#fff' 
-                                },
-                                legend: {
-                                    labels: {
-                                        color: '#fff'
-                                    }
-                                },
-                                tooltip: {
-                                    titleColor: '#fff', // título tooltip branco
-                                    bodyColor: '#fff',  // corpo tooltip branco
-                                    backgroundColor: 'rgba(0,0,0,0.7)'  // fundo escuro tooltip
+                            legend: {
+                                labels: {
+                                    color: '#fff'
                                 }
                             },
-                            scales: {
-                                x: {
-                                    stacked: true,
-                                    grid: { display: false },
-                                    ticks: { color: '#fff' },
-                                    maxBarThickness: 3 //    // controla espaço entre grupos de barras (padrão 0.8)
+                            tooltip: {
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                backgroundColor: 'rgba(0,0,0,0.7)'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                grid: { display: false },
+                                ticks: { color: '#fff' },
+                                maxBarThickness: 3
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                ticks: {
+                                    color: '#fff',
+                                    precision: 0
                                 },
-                                y: {
-                                    stacked: true,
-                                    beginAtZero: true,
-                                    ticks: { 
-                                        color: '#fff',
-                                        precision: 0
-                                    },
-                                    grid: { color: 'rgba(255,255,255,0.1)' }
-                                }
+                                grid: { color: 'rgba(255,255,255,0.1)' }
                             }
                         }
-                    });
-                } else {
-                    console.error("Erro ao carregar dados:", data.message);
-                }
-            })
-            .catch(error => console.error("Erro de conexão:", error));
+                    }
+                });
+
+                // Atualizar resumo
+                const resumo = data.resumo;
+                document.getElementById("totalAbertos").textContent = resumo.total_abertos ?? "-";
+                document.getElementById("totalResolvidos").textContent = resumo.total_resolvidos ?? "-";
+                document.getElementById("diferencaAbertosResolvidos").textContent = resumo.diferenca ?? "-";
+            } else {
+                console.error("Erro ao carregar dados:", data.message);
+            }
+        })
+        .catch(error => console.error("Erro de conexão:", error));
 </script>
+
 
 <!-- Bloco que me traz as ligações atendidas no dia no mês-->
 <script>
