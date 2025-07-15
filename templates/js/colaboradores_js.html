@@ -38,7 +38,7 @@ function copiarChamados() {
       const totalTempo = tempoOnline + tempoLivre + tempoServico + tempoRefeicao;
 
       const distribuicaoPercentual = [
-        (tempoOnline / totalTempo) * 100,
+        //(tempoOnline / totalTempo) * 100,
         (tempoLivre / totalTempo) * 100,
         (tempoServico / totalTempo) * 100,
         (tempoRefeicao / totalTempo) * 100
@@ -52,7 +52,7 @@ function copiarChamados() {
         chartDistribuicao = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ["Online", "Livre", "Serviço", "Refeição"],
+          labels: [ "Livre", "Serviço", "Refeição"],
           datasets: [{
             data: distribuicaoPercentual,
             backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
@@ -137,7 +137,7 @@ function copiarChamados() {
   });
 </script>
 
-
+<!-- Bloco que traz a relação de chamados abertos e ligações atendidas-->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const colaborador = document.getElementById("colaboradorNome").textContent.trim();
