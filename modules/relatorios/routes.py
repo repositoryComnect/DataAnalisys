@@ -9,32 +9,39 @@ relatorios_bp = Blueprint('relatorios_bp', __name__, url_prefix='/relatorios')
 
 @relatorios_bp.route("/extrairRelatorios", methods=['POST'])
 def extrair_relatorios():
-    data_inicio = request.form.get('data_inicio')
+    data_inicio = request.form.get('data_inicio')  # yyyy-mm-dd
+    hora_inicio = request.form.get('hora_inicio')  # HH:MM
     data_final = request.form.get('data_final')
+    hora_final = request.form.get('hora_final')
     operador = request.form.get('operador')
 
-    if not all([data_inicio, data_final, operador]):
+    if not all([data_inicio, hora_inicio, data_final, hora_final, operador]):
         return {"status": "error", "message": "Parâmetros ausentes"}, 400
 
     try:
-        data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d')
-        data_final = datetime.strptime(data_final, '%Y-%m-%d')
+        dt_inicio = datetime.strptime(f"{data_inicio} {hora_inicio}", '%Y-%m-%d %H:%M')
+        dt_final = datetime.strptime(f"{data_final} {hora_final}", '%Y-%m-%d %H:%M')
     except ValueError:
-        return {"status": "error", "message": "Formato de data inválido"}, 400
+        return {"status": "error", "message": "Formato de data/hora inválido"}, 400
 
-    # Consulta chamados
+    # Consulta chamados com data e hora
     chamados = Chamado.query.filter(
         Chamado.operador == operador,
-        Chamado.data_criacao >= data_inicio,
-        Chamado.data_criacao <= data_final
+        Chamado.data_criacao >= dt_inicio,
+        Chamado.data_criacao <= dt_final
     ).order_by(Chamado.data_criacao).all()
 
-    # Consulta performance
+    total_chamados = len(chamados)
+
+    # Consulta performance (por data apenas)
     performance = PerformanceColaboradores.query.filter(
         PerformanceColaboradores.name == operador,
-        PerformanceColaboradores.data >= data_inicio.date(),
-        PerformanceColaboradores.data <= data_final.date()
+        PerformanceColaboradores.data >= dt_inicio.date(),
+        PerformanceColaboradores.data <= dt_final.date()
     ).order_by(PerformanceColaboradores.data).all()
+
+    total_ligacoes_atendidas = sum(p.ch_atendidas or 0 for p in performance)
+    total_ligacoes_naoatendidas = sum(p.ch_naoatendidas or 0 for p in performance)
 
     # Geração do PDF
     pdf = FPDF()
@@ -43,14 +50,17 @@ def extrair_relatorios():
     pdf.cell(0, 10, f"Relatório do Operador: {operador}", ln=True, align="C")
 
     pdf.set_font("Arial", "", 12)
-    pdf.cell(0, 10, f"Período: {data_inicio.strftime('%d/%m/%Y')} a {data_final.strftime('%d/%m/%Y')}", ln=True)
+    pdf.cell(0, 10, f"Período: {dt_inicio.strftime('%d/%m/%Y %H:%M')} a {dt_final.strftime('%d/%m/%Y %H:%M')}", ln=True)
     pdf.ln(5)
 
-    # ---------------------------
-    # TABELA DE CHAMADOS
-    # ---------------------------
+    # Chamados
     pdf.set_font("Arial", "B", 14)
     pdf.cell(0, 10, "Chamados:", ln=True)
+
+    pdf.set_font("Arial", "", 12)
+    pdf.cell(0, 10, f"Total de chamados: {total_chamados}", ln=True)
+    pdf.ln(2)
+
     pdf.set_font("Arial", "B", 11)
     pdf.cell(40, 8, "Código", 1)
     pdf.cell(50, 8, "Status", 1)
@@ -73,11 +83,15 @@ def extrair_relatorios():
 
     pdf.ln(10)
 
-    # ---------------------------
-    # TABELA DE PERFORMANCE
-    # ---------------------------
+    # Performance
     pdf.set_font("Arial", "B", 14)
     pdf.cell(0, 10, "Performance de Ligações:", ln=True)
+
+    pdf.set_font("Arial", "", 12)
+    pdf.cell(0, 8, f"Total ligações atendidas: {total_ligacoes_atendidas}", ln=True)
+    pdf.cell(0, 8, f"Total ligações não atendidas: {total_ligacoes_naoatendidas}", ln=True)
+    pdf.ln(2)
+
     pdf.set_font("Arial", "B", 11)
     pdf.cell(30, 8, "Data", 1)
     pdf.cell(30, 8, "Atendidas", 1)
@@ -109,7 +123,7 @@ def extrair_relatorios():
 
 @relatorios_bp.route("/getOperadores", methods=['GET'])
 def get_operadores():
-    operadores_ignorar = ['Alexandre', 'API', 'Caio', 'Chrysthyanne', 'Fabio', 'Fernando', 'Maria Luiza', 'Paulo', 'Luciano', 'Eduardo']  # operadores a ignorar
+    operadores_ignorar = ['Alexandre', 'API', 'Caio', 'Fabio', 'Paulo', 'Luciano']  # operadores a ignorar
     operadores = (
         db.session.query(Chamado.operador)
         .filter(Chamado.operador.isnot(None),

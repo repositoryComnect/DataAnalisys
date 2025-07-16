@@ -22,8 +22,10 @@
         const data_inicio = document.getElementById("data_inicio").value;
         const data_final = document.getElementById("data_final").value;
         const operador = document.getElementById("operador").value;
+        const hora_inicio = document.getElementById("hora_inicio").value;
+        const hora_final = document.getElementById("hora_final").value;
 
-        if (!data_inicio || !data_final || !operador) {
+        if (!data_inicio || !data_final || !operador || !hora_final || !hora_inicio) {
             alert("Por favor, preencha Data Início, Data Fim e selecione um Operador.");
             return;
         }
@@ -32,6 +34,8 @@
         formData.append('data_inicio', data_inicio);
         formData.append('data_final', data_final);
         formData.append('operador', operador);
+        formData.append('hora_inicio', hora_inicio);
+        formData.append('hora_final', hora_final);
 
         fetch('/relatorios/extrairRelatorios', {
             method: 'POST',

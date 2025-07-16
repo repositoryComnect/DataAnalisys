@@ -12,6 +12,7 @@ function copiarChamados() {
 }
 </script>
 
+<!-- Bloco que traz a relação de tempo livre, refeição e serviço-->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     function formatarTempo(segundos) {
@@ -39,7 +40,7 @@ function copiarChamados() {
 
       const distribuicaoPercentual = [
         //(tempoOnline / totalTempo) * 100,
-        (tempoLivre / totalTempo) * 100,
+        ((tempoLivre + tempoOnline) / totalTempo) * 100,
         (tempoServico / totalTempo) * 100,
         (tempoRefeicao / totalTempo) * 100
       ].map(v => +v.toFixed(2));
@@ -227,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 
-
+<!-- Bloco que traz os SLAs por operador -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const colaborador = document.getElementById("colaboradorNome").textContent.trim();
@@ -411,10 +412,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const naoRespondidasEl = document.getElementById("percentual-null");
       const respondidasEl = document.getElementById("percentual-retorno");
+      const naoRespondidas = document.getElementById("nao-respondidas");
+      const respondidas = document.getElementById("respondidas")
+
 
       if (data.status === 'success') {
         naoRespondidasEl.textContent = data.percentual_nao_respondidas + '%';
         respondidasEl.textContent = data.percentual_respondidas + '%';
+        respondidas.textContent = data.respondidas;
+        naoRespondidas.textContent = data.nao_respondidas
         comentariosPesquisa = data.alternativas || [];
       } else {
         naoRespondidasEl.textContent = '-';

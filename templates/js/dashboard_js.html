@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Dentro do Prazo', 'Quase Estourando', 'Expirado'],
+                labels: ['Dentro do Prazo', 'Prazo Crítico', 'Expirado'],
                 datasets: [{
                     label: label,
                     data: [naoExpirado, quaseEstourando, expirado],
@@ -113,7 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-
 <!-- Bloco que traz as informações dos grupos -->
     <script>
        fetch('/dashboard/ChamadosSuporte/por_grupo_mes_atual')
@@ -189,7 +188,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     </script>
-
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -275,7 +273,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     </script>
-
 
 <!--<script>
 document.addEventListener("DOMContentLoaded", function () {

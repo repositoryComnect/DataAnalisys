@@ -589,7 +589,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-
 <!--Script que traz os dados de Abertos vs Status-->
 <script>
     let statusChart = null;
@@ -954,7 +953,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Dentro do Prazo', 'Quase Estourando', 'Expirado'],
+                labels: ['Dentro do Prazo', 'Prazo Crítico', 'Expirado'],
                 datasets: [{
                     label: label,
                     data: [naoExpirado, quaseEstourando, expirado],
@@ -980,8 +979,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         color: '#fff',
                         anchor: 'center',
                         align: 'top',
-                        formatter: val => ((val / total) * 100).toFixed(1) + '%',
-                        font: { weight: 'bold' }
+                        formatter: val => {
+                            if (total === 0) return '0%';
+                            return ((val / total) * 100).toFixed(1) + '%';
+                        }
                     }
                 },
                 scales: {
@@ -1065,7 +1066,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Dentro do Prazo', 'Quase Estourando', 'Expirado'],
+                labels: ['Dentro do Prazo', 'Prazo Crítico', 'Expirado'],
                 datasets: [{
                     label: label,
                     data: [naoExpirado, quaseEstourando, expirado],
@@ -1091,8 +1092,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         color: '#fff',
                         anchor: 'center',
                         align: 'top',
-                        formatter: val => ((val / total) * 100).toFixed(1) + '%',
-                        font: { weight: 'bold' }
+                        formatter: val => {
+                            if (total === 0) return '0%';
+                            return ((val / total) * 100).toFixed(1) + '%';
+                        }
                     }
                 },
                 scales: {

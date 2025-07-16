@@ -184,7 +184,6 @@
     });
 </script>
 
-
 <!-- Bloco que me traz os chamados abertos VS resolvidos no mês-->
 <script>
     fetch('/dashboard/ChamadosSuporte/abertos_vs_resolvidos', { method: 'POST' })
@@ -253,7 +252,6 @@
         })
         .catch(error => console.error("Erro de conexão:", error));
 </script>
-
 
 <!-- Bloco que me traz as ligações atendidas no dia no mês-->
 <script>
@@ -421,7 +419,6 @@ fetch('/dashboard/call/v2/report/queue_status', { method: 'POST' })
   });
 </script>
 
-
 <!--Bloco que traz o status da fila vyrtos-->
 <script>
 fetch('/dashboard/call/v2/report/queue_status_vyrtus', { method: 'POST' })
@@ -476,7 +473,6 @@ fetch('/dashboard/call/v2/report/queue_status_vyrtus', { method: 'POST' })
     console.error('Erro ao buscar dados da fila Vyrtus:', err);
   });
 </script>
-
 
 <!-- Bloco que me traz os agentes que estão logados na URA-->
 <script>
@@ -566,7 +562,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Dentro do Prazo', 'Quase Estourando', 'Expirado'],
+                labels: ['Dentro do Prazo', 'Prazo Crítico', 'Expirado'],
                 datasets: [{
                     label: label,
                     data: [naoExpirado, quaseEstourando, expirado],
@@ -592,8 +588,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         color: '#fff',
                         anchor: 'center',
                         align: 'top',
-                        formatter: val => ((val / total) * 100).toFixed(1) + '%',
-                        font: { weight: 'bold' }
+                        formatter: val => {
+                            if (total === 0) return '0%';
+                            return ((val / total) * 100).toFixed(1) + '%';
+                        }
                     }
                 },
                 scales: {
@@ -664,7 +662,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(e => console.error('Erro na requisição SLA por grupo:', e));
 });
 </script>
-
 
 <!-- Bloco que recarrega a página a cada 5 minutos-->
 <script>
