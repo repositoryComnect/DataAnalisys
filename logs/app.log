@@ -1,3 +1,487 @@
 2025-12-30 11:57:41,925 - INFO - 192.168.16.6 - - [30/Dec/2025 11:57:41] "POST /dashboard/call/v2/report/agents_status HTTP/1.1" 200 -
 2025-12-30 11:57:41,931 - INFO - 192.168.16.6 - - [30/Dec/2025 11:57:41] "POST /dashboard/call/v2/report/queue_status HTTP/1.1" 200 -
 2025-12-30 11:57:41,937 - INFO - 192.168.16.6 - - [30/Dec/2025 11:57:41] "POST /dashboard/call/v2/report/queue_status_vyrtus HTTP/1.1" 200 -
+2025-12-30 16:52:02,196 - DEBUG - Looking up time zone info from registry
+2025-12-30 16:52:04,430 - INFO - Jobs agendados antes da inicialização: []
+2025-12-30 16:52:04,430 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:52:04,431 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:52:04,432 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:52:04,432 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:52:04,432 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:52:04,432 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:52:04,432 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:52:04,433 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:52:04,449 - INFO - Added job "job_processa_performance_horaria" to job store "default"
+2025-12-30 16:52:04,450 - INFO - Added job "job_processa_detalhes_chamadas" to job store "default"
+2025-12-30 16:52:04,450 - INFO - Added job "job_import_eventos" to job store "default"
+2025-12-30 16:52:04,450 - INFO - Added job "job_processa_registro_chamadas_saida" to job store "default"
+2025-12-30 16:52:04,450 - INFO - Added job "job_processa_performance_horaria_vyrtos" to job store "default"
+2025-12-30 16:52:04,450 - INFO - Added job "job_importar_chamados" to job store "default"
+2025-12-30 16:52:04,450 - INFO - Added job "job_importar_psatisfacao" to job store "default"
+2025-12-30 16:52:04,450 - INFO - Added job "job_importar_fcr_reabertos" to job store "default"
+2025-12-30 16:52:04,451 - INFO - Scheduler started
+2025-12-30 16:52:04,451 - DEBUG - Looking for jobs to run
+2025-12-30 16:52:04,451 - INFO - Tarefas agendadas iniciadas.
+2025-12-30 16:52:04,452 - DEBUG - Next wakeup is due at 2025-12-30 16:57:04.432629-03:00 (in 299.980559 seconds)
+2025-12-30 16:52:05,331 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:9000
+ * Running on http://172.16.30.110:9000
+2025-12-30 16:52:05,331 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-30 16:52:41,323 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET / HTTP/1.1" 200 -
+2025-12-30 16:52:41,491 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_header.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,491 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_guardians.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,495 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_dashboard.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,547 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_insights.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,555 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_colaboradores_individual.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,555 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_colaboradores.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,576 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_escala.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,580 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_okrs.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,580 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_login.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,606 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_register.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,608 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/css/style_relatorios.css HTTP/1.1" 200 -
+2025-12-30 16:52:41,615 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:41] "GET /static/img/logo-orion.png HTTP/1.1" 200 -
+2025-12-30 16:52:47,757 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:47] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-30 16:52:47,847 - ERROR - Exception on /insights [GET]
+Traceback (most recent call last):
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\modules\login\decorators.py", line 26, in decorated_function
+    return f(*args, **kwargs)
+  File "C:\Users\Administrator\Desktop\DataAnalisys\modules\home\routes.py", line 32, in render_insights
+    return render_template('insights.html')
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\insights.html", line 1, in top-level template code
+    {% extends "base_template.html" %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\base_template.html", line 49, in top-level template code
+    {% block header %}
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\base_template.html", line 50, in block 'header'
+    {% include 'header/model-header.html' %}
+    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\header\model-header.html", line 84, in top-level template code
+    <li><a href="{{ url_for('guardians_bp.rankings') }}"><i class="bi bi-trophy"></i> Rankings</a></li>
+    ^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1084, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1073, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'guardians_bp.rankings'. Did you mean 'insights_bp.nps' instead?
+2025-12-30 16:52:47,948 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:47] "[35m[1mGET /insights HTTP/1.1[0m" 500 -
+2025-12-30 16:52:48,015 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:48] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-12-30 16:52:52,976 - ERROR - Exception on /insights [GET]
+Traceback (most recent call last):
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\modules\login\decorators.py", line 26, in decorated_function
+    return f(*args, **kwargs)
+  File "C:\Users\Administrator\Desktop\DataAnalisys\modules\home\routes.py", line 32, in render_insights
+    return render_template('insights.html')
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\insights.html", line 1, in top-level template code
+    {% extends "base_template.html" %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\base_template.html", line 49, in top-level template code
+    {% block header %}
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\base_template.html", line 50, in block 'header'
+    {% include 'header/model-header.html' %}
+    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\header\model-header.html", line 84, in top-level template code
+    <li><a href="{{ url_for('guardians_bp.rankings') }}"><i class="bi bi-trophy"></i> Rankings</a></li>
+    ^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1084, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1073, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'guardians_bp.rankings'. Did you mean 'insights_bp.nps' instead?
+2025-12-30 16:52:52,990 - INFO - 192.168.10.157 - - [30/Dec/2025 16:52:52] "[35m[1mGET /insights HTTP/1.1[0m" 500 -
+2025-12-30 16:53:21,684 - ERROR - Exception on /insights [GET]
+Traceback (most recent call last):
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\modules\login\decorators.py", line 26, in decorated_function
+    return f(*args, **kwargs)
+  File "C:\Users\Administrator\Desktop\DataAnalisys\modules\home\routes.py", line 32, in render_insights
+    return render_template('insights.html')
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\insights.html", line 1, in top-level template code
+    {% extends "base_template.html" %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\base_template.html", line 49, in top-level template code
+    {% block header %}
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\base_template.html", line 50, in block 'header'
+    {% include 'header/model-header.html' %}
+    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\header\model-header.html", line 84, in top-level template code
+    <li><a href="{{ url_for('guardians_bp.rankings') }}"><i class="bi bi-trophy"></i> Rankings</a></li>
+    ^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1084, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1073, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'guardians_bp.rankings'. Did you mean 'insights_bp.nps' instead?
+2025-12-30 16:53:21,698 - INFO - 192.168.10.157 - - [30/Dec/2025 16:53:21] "[35m[1mGET /insights HTTP/1.1[0m" 500 -
+2025-12-30 16:53:24,157 - INFO - 192.168.10.157 - - [30/Dec/2025 16:53:24] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-30 16:53:24,166 - ERROR - Exception on /insights [GET]
+Traceback (most recent call last):
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\modules\login\decorators.py", line 26, in decorated_function
+    return f(*args, **kwargs)
+  File "C:\Users\Administrator\Desktop\DataAnalisys\modules\home\routes.py", line 32, in render_insights
+    return render_template('insights.html')
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\insights.html", line 1, in top-level template code
+    {% extends "base_template.html" %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\base_template.html", line 49, in top-level template code
+    {% block header %}
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\base_template.html", line 50, in block 'header'
+    {% include 'header/model-header.html' %}
+    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\DataAnalisys\templates\header\model-header.html", line 84, in top-level template code
+    <li><a href="{{ url_for('guardians_bp.rankings') }}"><i class="bi bi-trophy"></i> Rankings</a></li>
+    ^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1084, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1073, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'guardians_bp.rankings'. Did you mean 'insights_bp.nps' instead?
+2025-12-30 16:53:24,179 - INFO - 192.168.10.157 - - [30/Dec/2025 16:53:24] "[35m[1mGET /insights HTTP/1.1[0m" 500 -
+2025-12-30 16:54:45,042 - DEBUG - Looking up time zone info from registry
+2025-12-30 16:54:47,222 - INFO - Jobs agendados antes da inicialização: []
+2025-12-30 16:54:47,222 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:54:47,222 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:54:47,222 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:54:47,223 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:54:47,223 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:54:47,223 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:54:47,223 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:54:47,223 - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-12-30 16:54:47,225 - INFO - Added job "job_processa_performance_horaria" to job store "default"
+2025-12-30 16:54:47,225 - INFO - Added job "job_processa_detalhes_chamadas" to job store "default"
+2025-12-30 16:54:47,225 - INFO - Added job "job_import_eventos" to job store "default"
+2025-12-30 16:54:47,226 - INFO - Added job "job_processa_registro_chamadas_saida" to job store "default"
+2025-12-30 16:54:47,226 - INFO - Added job "job_processa_performance_horaria_vyrtos" to job store "default"
+2025-12-30 16:54:47,226 - INFO - Added job "job_importar_chamados" to job store "default"
+2025-12-30 16:54:47,226 - INFO - Added job "job_importar_psatisfacao" to job store "default"
+2025-12-30 16:54:47,226 - INFO - Added job "job_importar_fcr_reabertos" to job store "default"
+2025-12-30 16:54:47,226 - INFO - Scheduler started
+2025-12-30 16:54:47,227 - DEBUG - Looking for jobs to run
+2025-12-30 16:54:47,227 - INFO - Tarefas agendadas iniciadas.
+2025-12-30 16:54:47,227 - DEBUG - Next wakeup is due at 2025-12-30 16:59:47.223524-03:00 (in 299.996020 seconds)
+2025-12-30 16:54:48,078 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:9000
+ * Running on http://172.16.30.110:9000
+2025-12-30 16:54:48,078 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-30 16:54:53,413 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "GET /insights HTTP/1.1" 200 -
+2025-12-30 16:54:53,642 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_header.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,654 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_escala.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,662 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_login.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,663 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_insights.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,669 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_dashboard.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,673 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_okrs.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,674 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_colaboradores_individual.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,675 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_guardians.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,676 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_colaboradores.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,679 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_register.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,688 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/css/style_relatorios.css HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,691 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "[36mGET /static/img/logo-orion.png HTTP/1.1[0m" 304 -
+2025-12-30 16:54:53,729 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "GET /static/js/header.js HTTP/1.1" 200 -
+2025-12-30 16:54:53,759 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "GET /static/js/insights.js HTTP/1.1" 200 -
+2025-12-30 16:54:53,878 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "POST /insights/ChamadosSuporte/finalizado HTTP/1.1" 200 -
+2025-12-30 16:54:53,899 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "POST /insights/sla HTTP/1.1" 200 -
+2025-12-30 16:54:53,925 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "POST /insights/ticketsCanal HTTP/1.1" 200 -
+2025-12-30 16:54:53,958 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "GET /insights/get/grupos HTTP/1.1" 200 -
+2025-12-30 16:54:53,998 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:53] "POST /insights/ChamadosSuporte/ticketsOperador HTTP/1.1" 200 -
+2025-12-30 16:54:54,043 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /dashboard/ChamadosSuporte/sla_andamento_grupos HTTP/1.1" 200 -
+2025-12-30 16:54:54,076 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /dashboard/ChamadosSuporte/sla_andamento HTTP/1.1" 200 -
+2025-12-30 16:54:54,103 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /insights/pSatisfacao HTTP/1.1" 200 -
+2025-12-30 16:54:54,138 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /insights/fcr HTTP/1.1" 200 -
+2025-12-30 16:54:54,163 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /insights/ces HTTP/1.1" 200 -
+2025-12-30 16:54:54,177 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /insights/nps HTTP/1.1" 200 -
+2025-12-30 16:54:54,207 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "GET /insights/tma_tms?dias=1 HTTP/1.1" 200 -
+2025-12-30 16:54:54,228 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /insights/ligacoesAtendidas HTTP/1.1" 200 -
+2025-12-30 16:54:54,241 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /insights/ligacoesPerdidas HTTP/1.1" 200 -
+2025-12-30 16:54:54,260 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /insights/chamadasEfetuadas HTTP/1.1" 200 -
+2025-12-30 16:54:54,280 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /insights/chamadasTransferidas HTTP/1.1" 200 -
+2025-12-30 16:54:54,310 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /insights/tmin_tmax HTTP/1.1" 200 -
+2025-12-30 16:54:54,339 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:54,349 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:54,380 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "POST /insights/reabertos HTTP/1.1" 200 -
+2025-12-30 16:54:54,397 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:54] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:55,903 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:55] "POST /insights/abertos_vs_admin_resolvido_periodo HTTP/1.1" 200 -
+2025-12-30 16:54:55,916 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:55] "POST /insights/ChamadosSuporte HTTP/1.1" 200 -
+2025-12-30 16:54:55,926 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:55] "POST /insights/ChamadosEmAbertoSuporte HTTP/1.1" 200 -
+2025-12-30 16:54:55,931 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:55] "POST /insights/abertos/status HTTP/1.1" 200 -
+2025-12-30 16:54:55,932 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:55] "GET /insights/get/operadores HTTP/1.1" 200 -
+2025-12-30 16:54:56,486 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/ChamadosSuporte HTTP/1.1" 200 -
+2025-12-30 16:54:56,491 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/ChamadosSuporte/finalizado HTTP/1.1" 200 -
+2025-12-30 16:54:56,494 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/abertos/status HTTP/1.1" 200 -
+2025-12-30 16:54:56,501 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/abertos_vs_admin_resolvido_periodo HTTP/1.1" 200 -
+2025-12-30 16:54:56,510 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/sla HTTP/1.1" 200 -
+2025-12-30 16:54:56,517 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/ChamadosEmAbertoSuporte HTTP/1.1" 200 -
+2025-12-30 16:54:56,519 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/pSatisfacao HTTP/1.1" 200 -
+2025-12-30 16:54:56,520 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/ticketsCanal HTTP/1.1" 200 -
+2025-12-30 16:54:56,529 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/ChamadosSuporte/ticketsOperador HTTP/1.1" 200 -
+2025-12-30 16:54:56,563 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/ces HTTP/1.1" 200 -
+2025-12-30 16:54:56,578 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/fcr HTTP/1.1" 200 -
+2025-12-30 16:54:56,630 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/ligacoesAtendidas HTTP/1.1" 200 -
+2025-12-30 16:54:56,631 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/nps HTTP/1.1" 200 -
+2025-12-30 16:54:56,633 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/chamadasEfetuadas HTTP/1.1" 200 -
+2025-12-30 16:54:56,666 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/ligacoesPerdidas HTTP/1.1" 200 -
+2025-12-30 16:54:56,669 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/chamadasTransferidas HTTP/1.1" 200 -
+2025-12-30 16:54:56,672 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:56,676 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/tmin_tmax HTTP/1.1" 200 -
+2025-12-30 16:54:56,685 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:56,689 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "GET /insights/tma_tms?dias=15 HTTP/1.1" 200 -
+2025-12-30 16:54:56,719 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:56,723 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:56] "POST /insights/reabertos HTTP/1.1" 200 -
+2025-12-30 16:54:57,412 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ChamadosSuporte HTTP/1.1" 200 -
+2025-12-30 16:54:57,415 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ChamadosSuporte/finalizado HTTP/1.1" 200 -
+2025-12-30 16:54:57,422 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/abertos/status HTTP/1.1" 200 -
+2025-12-30 16:54:57,434 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ChamadosEmAbertoSuporte HTTP/1.1" 200 -
+2025-12-30 16:54:57,438 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/abertos_vs_admin_resolvido_periodo HTTP/1.1" 200 -
+2025-12-30 16:54:57,441 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ChamadosSuporte/ticketsOperador HTTP/1.1" 200 -
+2025-12-30 16:54:57,458 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ticketsCanal HTTP/1.1" 200 -
+2025-12-30 16:54:57,462 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/sla HTTP/1.1" 200 -
+2025-12-30 16:54:57,465 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/pSatisfacao HTTP/1.1" 200 -
+2025-12-30 16:54:57,473 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/nps HTTP/1.1" 200 -
+2025-12-30 16:54:57,475 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ces HTTP/1.1" 200 -
+2025-12-30 16:54:57,477 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ligacoesAtendidas HTTP/1.1" 200 -
+2025-12-30 16:54:57,483 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ligacoesPerdidas HTTP/1.1" 200 -
+2025-12-30 16:54:57,491 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/chamadasEfetuadas HTTP/1.1" 200 -
+2025-12-30 16:54:57,492 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/fcr HTTP/1.1" 200 -
+2025-12-30 16:54:57,511 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:57,524 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/chamadasTransferidas HTTP/1.1" 200 -
+2025-12-30 16:54:57,533 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/tmin_tmax HTTP/1.1" 200 -
+2025-12-30 16:54:57,544 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "GET /insights/tma_tms?dias=30 HTTP/1.1" 200 -
+2025-12-30 16:54:57,546 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:57,565 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:57,578 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/reabertos HTTP/1.1" 200 -
+2025-12-30 16:54:57,919 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ChamadosSuporte HTTP/1.1" 200 -
+2025-12-30 16:54:57,923 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ChamadosSuporte/finalizado HTTP/1.1" 200 -
+2025-12-30 16:54:57,932 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/abertos/status HTTP/1.1" 200 -
+2025-12-30 16:54:57,944 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ChamadosEmAbertoSuporte HTTP/1.1" 200 -
+2025-12-30 16:54:57,954 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ChamadosSuporte/ticketsOperador HTTP/1.1" 200 -
+2025-12-30 16:54:57,959 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/abertos_vs_admin_resolvido_periodo HTTP/1.1" 200 -
+2025-12-30 16:54:57,965 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/pSatisfacao HTTP/1.1" 200 -
+2025-12-30 16:54:57,992 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:57] "POST /insights/ticketsCanal HTTP/1.1" 200 -
+2025-12-30 16:54:58,004 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ces HTTP/1.1" 200 -
+2025-12-30 16:54:58,008 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ligacoesAtendidas HTTP/1.1" 200 -
+2025-12-30 16:54:58,014 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ligacoesPerdidas HTTP/1.1" 200 -
+2025-12-30 16:54:58,021 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/nps HTTP/1.1" 200 -
+2025-12-30 16:54:58,040 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/sla HTTP/1.1" 200 -
+2025-12-30 16:54:58,049 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/chamadasEfetuadas HTTP/1.1" 200 -
+2025-12-30 16:54:58,054 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/chamadasTransferidas HTTP/1.1" 200 -
+2025-12-30 16:54:58,061 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:58,079 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/tmin_tmax HTTP/1.1" 200 -
+2025-12-30 16:54:58,087 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/fcr HTTP/1.1" 200 -
+2025-12-30 16:54:58,102 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:58,125 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "GET /insights/tma_tms?dias=90 HTTP/1.1" 200 -
+2025-12-30 16:54:58,151 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/reabertos HTTP/1.1" 200 -
+2025-12-30 16:54:58,156 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:58,463 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ChamadosSuporte HTTP/1.1" 200 -
+2025-12-30 16:54:58,468 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ChamadosSuporte/finalizado HTTP/1.1" 200 -
+2025-12-30 16:54:58,481 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/abertos/status HTTP/1.1" 200 -
+2025-12-30 16:54:58,488 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ChamadosEmAbertoSuporte HTTP/1.1" 200 -
+2025-12-30 16:54:58,507 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ChamadosSuporte/ticketsOperador HTTP/1.1" 200 -
+2025-12-30 16:54:58,518 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/abertos_vs_admin_resolvido_periodo HTTP/1.1" 200 -
+2025-12-30 16:54:58,568 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/pSatisfacao HTTP/1.1" 200 -
+2025-12-30 16:54:58,590 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ligacoesAtendidas HTTP/1.1" 200 -
+2025-12-30 16:54:58,601 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ces HTTP/1.1" 200 -
+2025-12-30 16:54:58,602 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ticketsCanal HTTP/1.1" 200 -
+2025-12-30 16:54:58,623 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/ligacoesPerdidas HTTP/1.1" 200 -
+2025-12-30 16:54:58,625 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/chamadasEfetuadas HTTP/1.1" 200 -
+2025-12-30 16:54:58,626 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/chamadasTransferidas HTTP/1.1" 200 -
+2025-12-30 16:54:58,662 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:58,667 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/tmin_tmax HTTP/1.1" 200 -
+2025-12-30 16:54:58,730 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/sla HTTP/1.1" 200 -
+2025-12-30 16:54:58,755 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:54:58,805 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/fcr HTTP/1.1" 200 -
+2025-12-30 16:54:58,909 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "GET /insights/tma_tms?dias=180 HTTP/1.1" 200 -
+2025-12-30 16:54:58,934 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "POST /insights/reabertos HTTP/1.1" 200 -
+2025-12-30 16:54:58,937 - INFO - 192.168.10.157 - - [30/Dec/2025 16:54:58] "GET /okrs/getMetas HTTP/1.1" 200 -
+2025-12-30 16:55:00,581 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:00] "POST /insights/nps HTTP/1.1" 200 -
+2025-12-30 16:55:04,071 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /rankings HTTP/1.1" 200 -
+2025-12-30 16:55:04,130 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_header.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,142 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_guardians.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,145 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_insights.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,146 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_dashboard.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,148 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_colaboradores.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,150 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_colaboradores_individual.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,151 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_escala.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,156 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_login.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,159 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_okrs.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,161 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_register.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,163 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/css/style_relatorios.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,164 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/img/logo-orion.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,168 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "[36mGET /static/js/header.js HTTP/1.1[0m" 304 -
+2025-12-30 16:55:04,184 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/badges/arquiteto.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,185 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/conquistas/seguranca-intergalatica.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,187 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/conquistas/caçador-de-phish.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,189 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/badges/agente.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,200 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/conquistas/arquiteto-de-elite.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,201 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/conquistas/patrulheiro.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,316 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/badges/vigilante.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,324 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/conquistas/agente-secreto.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,324 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/conquistas/o-letrado.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,354 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/conquistas/fagulha-persistente.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,357 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/badges/sentinela.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,386 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/conquistas/batismo-de-fogo.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,442 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /insights/get/operadores HTTP/1.1" 200 -
+2025-12-30 16:55:04,445 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/conquistas/vigilante-estelar.png HTTP/1.1" 200 -
+2025-12-30 16:55:04,472 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /insights/get/grupos HTTP/1.1" 200 -
+2025-12-30 16:55:04,497 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:04] "GET /static/img/badges/recruta.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,665 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /sobre-o-programa HTTP/1.1" 200 -
+2025-12-30 16:55:08,721 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_header.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,731 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_dashboard.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,731 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_colaboradores_individual.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,733 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_guardians.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,734 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_colaboradores.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,737 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_insights.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,738 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_escala.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,742 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_login.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,744 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_okrs.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,746 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_register.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,750 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/css/style_relatorios.css HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,752 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/logo-orion.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,754 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/js/header.js HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,755 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/badges/recruta.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,759 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/badges/sentinela.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,760 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/badges/vigilante.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,762 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/conquistas/arquiteto-de-elite.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,766 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/conquistas/fagulha-persistente.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,770 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/conquistas/agente-secreto.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,771 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/conquistas/patrulheiro.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,773 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/conquistas/batismo-de-fogo.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,776 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/conquistas/vigilante-estelar.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,777 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/conquistas/o-letrado.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,786 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/conquistas/caçador-de-phish.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,789 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/conquistas/seguranca-intergalatica.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,792 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/badges/arquiteto.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,793 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "[36mGET /static/img/badges/agente.png HTTP/1.1[0m" 304 -
+2025-12-30 16:55:08,808 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/badges/guardiao.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,809 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/acumulador.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,810 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/faisca-inicial.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,812 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/veterano-de-guerra.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,823 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/lenda-viva.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,824 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/oficial-sentinela.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,918 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /insights/get/operadores HTTP/1.1" 200 -
+2025-12-30 16:55:08,925 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /insights/get/grupos HTTP/1.1" 200 -
+2025-12-30 16:55:08,940 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/guardiao-supremo.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,948 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/livro-aberto.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,968 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/coruja-da-seguranca.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,977 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/codinome-vaz.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,977 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/expert.png HTTP/1.1" 200 -
+2025-12-30 16:55:08,989 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:08] "GET /static/img/conquistas/escudo-cibernetico.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,031 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/tiro-certo.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,073 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/maratonista-digital.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,084 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/o-maioral.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,085 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/ferro-e-fogo.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,103 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/fagulha.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,142 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/em-chamas.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,144 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/forja-de-guerra.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,156 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/farol-de-vigia.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,203 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/firewall-ativo.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,228 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/guardiao-da-ronda.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,228 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/caca-fantasma.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,268 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/anzol-quebrado.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,268 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/olhos-de-aguia.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,276 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/detector-de-mentiras.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,347 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/onipresente.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,348 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/terror-do-phish.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,365 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/departamento-destaque.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,388 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/numero-1.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,398 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/top-3.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,409 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/bom-samaritano.png HTTP/1.1" 200 -
+2025-12-30 16:55:09,466 - INFO - 192.168.10.157 - - [30/Dec/2025 16:55:09] "GET /static/img/conquistas/mundo-real.png HTTP/1.1" 200 -
